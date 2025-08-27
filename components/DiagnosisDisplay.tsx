@@ -35,7 +35,7 @@ export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-8 space-y-8">
+    <div className="bg-white rounded-2xl shadow-md p-8 space-y-8">
       {/* Problem Diagnosis */}
       <div className="border-b border-gray-200 pb-6">
         <div className="flex items-center justify-between mb-4">
@@ -53,7 +53,7 @@ export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
           {diagnosis.problem.title}
         </h3>
         {diagnosis.problem.altHypotheses.length > 0 && (
-          <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="bg-gray-50 p-4 rounded-xl">
             <p className="text-sm text-gray-600 mb-2">Why we think so:</p>
             <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
               {diagnosis.problem.altHypotheses.map((hypothesis, index) => (
@@ -69,7 +69,7 @@ export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
         <h3 className="text-xl font-semibold text-gray-900">Step-by-Step Fix</h3>
         
         {/* Summary */}
-        <div className="bg-blue-50 p-4 rounded-lg">
+        <div className="bg-blue-50 p-4 rounded-xl">
           <p className="text-blue-900 font-medium">{diagnosis.diy.summary}</p>
         </div>
 
@@ -78,7 +78,7 @@ export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
           <h4 className="text-lg font-medium text-gray-900 mb-4">Steps to Fix</h4>
           <div className="space-y-4">
             {diagnosis.diy.steps.map((step, index) => (
-              <div key={index} className="border border-gray-200 rounded-lg p-4">
+              <div key={index} className="border border-gray-200 rounded-xl p-4 shadow-md">
                 <div className="flex items-start gap-4">
                   <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-medium flex-shrink-0">
                     {index + 1}
@@ -87,7 +87,7 @@ export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
                     <h5 className="font-medium text-gray-900 mb-1">{step.title}</h5>
                     <p className="text-gray-700 mb-2">{step.detail}</p>
                     {step.caution && (
-                      <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3">
                         <p className="text-yellow-800 text-sm">
                           <span className="font-medium">⚠️ Caution:</span> {step.caution}
                         </p>
@@ -107,7 +107,7 @@ export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
             <h4 className="text-lg font-medium text-gray-900 mb-4">Tools & Parts</h4>
             <div className="space-y-3">
               {diagnosis.diy.tools.map((tool, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl shadow-md">
                   <span className="font-medium text-gray-900">{tool.name}</span>
                   <div className="flex gap-2">
                     {tool.searchQueries.map((query, queryIndex) => (
@@ -132,7 +132,7 @@ export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
             <h4 className="text-lg font-medium text-gray-900 mb-4">Parts</h4>
             <div className="space-y-3">
               {diagnosis.diy.parts.map((part, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl shadow-md">
                   <span className="font-medium text-gray-900">{part.name}</span>
                   <div className="flex gap-2">
                     {part.searchQueries.map((query, queryIndex) => (
@@ -154,7 +154,7 @@ export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
         </div>
 
         {/* Cost Estimate */}
-        <div className="bg-green-50 p-4 rounded-lg">
+        <div className="bg-green-50 p-4 rounded-xl">
           <h4 className="text-lg font-medium text-gray-900 mb-2">Estimated Time & Cost</h4>
           <p className="text-green-800 font-semibold">
             ${diagnosis.diy.estimatedCost.min} - ${diagnosis.diy.estimatedCost.max} {diagnosis.diy.estimatedCost.currency}
@@ -168,7 +168,7 @@ export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
         
         {/* Global Notices */}
         {diagnosis.safety.globalNotices.length > 0 && (
-          <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
+          <div className="bg-red-50 border border-red-200 p-4 rounded-xl">
             {diagnosis.safety.globalNotices.map((notice, index) => (
               <p key={index} className="text-red-800 text-sm mb-2 last:mb-0">
                 {notice}
@@ -183,7 +183,7 @@ export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
             <h4 className="text-lg font-medium text-gray-900 mb-4">When to call a pro</h4>
             <div className="space-y-3">
               {diagnosis.safety.risks.map((risk, index) => (
-                <div key={index} className={`border rounded-lg p-4 ${getSeverityColor(risk.severity)}`}>
+                <div key={index} className={`border rounded-xl p-4 shadow-md ${getSeverityColor(risk.severity)}`}>
                   <div className="flex items-center justify-between mb-2">
                     <h5 className="font-medium">{risk.title}</h5>
                     <span className="text-xs font-medium px-2 py-1 rounded-full bg-white/50">
@@ -204,7 +204,7 @@ export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
           href={createSearchLink(diagnosis.diy.parts.map(p => p.name).join(' '), 'amazon')}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors text-center"
+          className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-xl font-medium hover:bg-blue-700 transition-colors text-center shadow-md"
         >
           Download Repair Guide (PDF)
         </a>
@@ -212,7 +212,7 @@ export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
           href={createSearchLink(diagnosis.diy.parts.map(p => p.name).join(' '), 'amazon')}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 bg-green-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-700 transition-colors text-center"
+          className="flex-1 bg-green-600 text-white py-3 px-6 rounded-xl font-medium hover:bg-green-700 transition-colors text-center shadow-md"
         >
           Order Parts
         </a>
@@ -221,7 +221,7 @@ export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
             href={`https://www.google.com/search?q=${encodeURIComponent(`${diagnosis.safety.category} repair professional near me`)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 bg-orange-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-orange-700 transition-colors text-center"
+            className="flex-1 bg-orange-600 text-white py-3 px-6 rounded-xl font-medium hover:bg-orange-700 transition-colors text-center shadow-md"
           >
             Book a Pro
           </a>
@@ -229,7 +229,7 @@ export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
       </div>
 
       {/* Tip Video */}
-      <div className="bg-gray-50 p-4 rounded-lg">
+      <div className="bg-gray-50 p-4 rounded-xl">
         <p className="text-sm text-gray-600">
           💡 <strong>Pro tip:</strong> Search for "{diagnosis.tipVideoQuery}" on YouTube for video tutorials.
         </p>

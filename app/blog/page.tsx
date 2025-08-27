@@ -1,16 +1,17 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Clock, ArrowRight } from 'lucide-react';
+import { Calendar, Clock, ArrowRight, Camera } from 'lucide-react';
 
 const blogPosts = [
   {
     slug: 'how-to-fix-leaking-faucet',
     title: 'How to Fix a Leaking Faucet in 5 Simple Steps',
-    excerpt: 'Learn the most common causes of faucet leaks and how to fix them yourself with our step-by-step guide.',
+    excerpt: 'Save money: Learn the most common causes of faucet leaks and how to fix them yourself with our step-by-step guide.',
     image: '/blog/leaking-faucet.jpg',
     category: 'Plumbing',
     readTime: '5 min read',
@@ -20,7 +21,7 @@ const blogPosts = [
   {
     slug: 'electrical-outlet-repair',
     title: 'Electrical Outlet Not Working? Here\'s What to Check',
-    excerpt: 'Don\'t call an electrician yet! Most outlet problems can be fixed with basic troubleshooting.',
+    excerpt: 'Save money: Don\'t call an electrician yet! Most outlet problems can be fixed with basic troubleshooting.',
     image: '/blog/electrical-outlet.jpg',
     category: 'Electrical',
     readTime: '7 min read',
@@ -29,7 +30,7 @@ const blogPosts = [
   {
     slug: 'drywall-repair-guide',
     title: 'Complete Guide to Drywall Repair: From Small Holes to Large Damage',
-    excerpt: 'Master the art of drywall repair with our comprehensive guide covering everything from nail holes to large patches.',
+    excerpt: 'Save money: Master the art of drywall repair with our comprehensive guide covering everything from nail holes to large patches.',
     image: '/blog/drywall-repair.jpg',
     category: 'Drywall',
     readTime: '12 min read',
@@ -38,7 +39,7 @@ const blogPosts = [
   {
     slug: 'kitchen-sink-clogged',
     title: 'Kitchen Sink Clogged? Try These 6 Solutions First',
-    excerpt: 'Before calling a plumber, try these DIY solutions to unclog your kitchen sink.',
+    excerpt: 'Save money: Before calling a plumber, try these DIY solutions to unclog your kitchen sink.',
     image: '/blog/kitchen-sink.jpg',
     category: 'Plumbing',
     readTime: '6 min read',
@@ -47,7 +48,7 @@ const blogPosts = [
   {
     slug: 'garage-door-repair',
     title: 'Garage Door Won\'t Open? Common Problems and Solutions',
-    excerpt: 'Diagnose and fix common garage door issues with our troubleshooting guide.',
+    excerpt: 'Save money: Diagnose and fix common garage door issues with our troubleshooting guide.',
     image: '/blog/garage-door.jpg',
     category: 'Garage',
     readTime: '8 min read',
@@ -56,7 +57,7 @@ const blogPosts = [
   {
     slug: 'water-heater-troubleshooting',
     title: 'Water Heater Troubleshooting: No Hot Water?',
-    excerpt: 'Don\'t take a cold shower! Learn how to diagnose and fix water heater problems.',
+    excerpt: 'Save money: Don\'t take a cold shower! Learn how to diagnose and fix water heater problems.',
     image: '/blog/water-heater.jpg',
     category: 'Plumbing',
     readTime: '10 min read',
@@ -75,6 +76,21 @@ const categories = [
 ];
 
 export default function BlogPage() {
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
+  const filteredPosts = selectedCategory === 'All' 
+    ? blogPosts 
+    : blogPosts.filter(post => post.category === selectedCategory);
+
+  const handleOpenInAssistant = (post: typeof blogPosts[0]) => {
+    // Create URL with pre-filled data for Assistant
+    const params = new URLSearchParams({
+      title: post.title,
+      category: post.category,
+      image: post.image
+    });
+    window.location.href = `/assistant?${params.toString()}`;
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       <div className="container-apple py-12">
@@ -89,8 +105,7 @@ export default function BlogPage() {
             Home Repair Blog
           </h1>
           <p className="text-headline-2 text-gray-600 mb-8 max-w-3xl mx-auto">
-            Expert tips, tutorials, and guides to help you tackle any home repair project 
-            with confidence and save money on contractor costs.
+            Clear, step-by-step guides and tips to help you fix common problems—and save on contractor costs.
           </p>
         </motion.div>
 
@@ -105,9 +120,10 @@ export default function BlogPage() {
             {categories.map((category, index) => (
               <Button
                 key={category}
-                variant={category === 'All' ? 'default' : 'outline'}
+                variant={selectedCategory === category ? 'default' : 'outline'}
                 size="sm"
                 className="rounded-full"
+                onClick={() => setSelectedCategory(category)}
               >
                 {category}
               </Button>
@@ -122,7 +138,7 @@ export default function BlogPage() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="mb-16"
         >
-          {blogPosts.filter(post => post.featured).map((post) => (
+          {filteredPosts.filter(post => post.featured).map((post) => (
             <Card key={post.slug} className="overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="bg-gradient-to-br from-blue-600 to-purple-600 h-64 lg:h-full flex items-center justify-center">
@@ -153,12 +169,22 @@ export default function BlogPage() {
                       <span>{post.readTime}</span>
                     </div>
                   </div>
-                  <Button asChild>
-                    <Link href={`/blog/${post.slug}`}>
-                      Read Full Article
-                      <ArrowRight className="ml-2 w-4 h-4" />
-                    </Link>
-                  </Button>
+                  <div className="flex gap-3">
+                    <Button asChild className="flex-1">
+                      <Link href={`/blog/${post.slug}`}>
+                        Read Full Article
+                        <ArrowRight className="ml-2 w-4 h-4" />
+                      </Link>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => handleOpenInAssistant(post)}
+                      className="flex items-center gap-2"
+                    >
+                      <Camera className="w-4 h-4" />
+                      Open in Assistant
+                    </Button>
+                  </div>
                 </div>
               </div>
             </Card>
@@ -167,7 +193,7 @@ export default function BlogPage() {
 
         {/* Blog Posts Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {blogPosts.filter(post => !post.featured).map((post, index) => (
+          {filteredPosts.filter(post => !post.featured).map((post, index) => (
             <motion.div
               key={post.slug}
               initial={{ opacity: 0, y: 20 }}
@@ -195,16 +221,27 @@ export default function BlogPage() {
                   <CardDescription className="text-body mb-4 line-clamp-3">
                     {post.excerpt}
                   </CardDescription>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <Calendar className="w-4 h-4" />
-                      <span>{new Date(post.date).toLocaleDateString()}</span>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Calendar className="w-4 h-4" />
+                        <span>{new Date(post.date).toLocaleDateString()}</span>
+                      </div>
+                      <Button variant="ghost" size="sm" asChild>
+                        <Link href={`/blog/${post.slug}`}>
+                          Read More
+                          <ArrowRight className="ml-1 w-4 h-4" />
+                        </Link>
+                      </Button>
                     </div>
-                    <Button variant="ghost" size="sm" asChild>
-                      <Link href={`/blog/${post.slug}`}>
-                        Read More
-                        <ArrowRight className="ml-1 w-4 h-4" />
-                      </Link>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleOpenInAssistant(post)}
+                      className="w-full flex items-center justify-center gap-2"
+                    >
+                      <Camera className="w-4 h-4" />
+                      Open in Assistant
                     </Button>
                   </div>
                 </CardContent>
@@ -224,10 +261,10 @@ export default function BlogPage() {
           <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8 text-center">
             <CardHeader>
               <CardTitle className="text-headline-2 text-white">
-                Stay Updated with Home Repair Tips
+                Get free DIY repair guides in your inbox
               </CardTitle>
               <CardDescription className="text-blue-100 text-body-large">
-                Get the latest repair guides and DIY tips delivered to your inbox.
+                1–2 emails per month. No spam.
               </CardDescription>
             </CardHeader>
             <CardContent>

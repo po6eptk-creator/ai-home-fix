@@ -15,17 +15,17 @@ const highlights = [
   {
     icon: Zap,
     title: "Lightning Fast AI",
-    description: "Our advanced AI processes images in seconds, providing instant, accurate diagnoses for any household problem."
+    description: "Diagnoses in seconds with high accuracy."
   },
   {
     icon: Shield,
     title: "Safety First",
-    description: "Every solution includes comprehensive safety checks and warnings to ensure your repairs are secure."
+    description: "Every guide includes mandatory safety checks."
   },
   {
     icon: Heart,
     title: "Built for Everyone",
-    description: "Whether you're a DIY expert or a complete beginner, our AI adapts to your skill level."
+    description: "Clear, step-by-step guides for all skill levels."
   }
 ];
 
@@ -34,25 +34,25 @@ const team = [
     name: "Alex Chen",
     role: "CEO & Founder",
     avatar: "/avatars/alex.jpg",
-    bio: "Former Google AI researcher with 10+ years in machine learning."
+    bio: "Former Google AI researcher, 10+ yrs in ML."
   },
   {
     name: "Sarah Kim",
     role: "CTO",
     avatar: "/avatars/sarah.jpg",
-    bio: "Expert in computer vision and home automation systems."
+    bio: "Computer vision & home automation expert."
   },
   {
     name: "Mike Rodriguez",
     role: "Head of Product",
     avatar: "/avatars/mike.jpg",
-    bio: "Product leader with experience at Airbnb and Uber."
+    bio: "Led product at Airbnb and Uber."
   },
   {
     name: "Emily Watson",
     role: "Lead Designer",
     avatar: "/avatars/emily.jpg",
-    bio: "UX designer focused on making complex AI simple to use."
+    bio: "UX designer focused on clarity and safety."
   }
 ];
 
@@ -71,8 +71,7 @@ export default function AboutPage() {
             About AI Home Fix
           </h1>
           <p className="text-headline-2 text-gray-600 mb-8 max-w-4xl mx-auto">
-            We're on a mission to democratize home repair knowledge through 
-            the power of artificial intelligence.
+            We democratize home repair knowledge with AI—so anyone can fix common household problems safely and confidently.
           </p>
           <p className="text-body-large text-gray-500 max-w-3xl mx-auto">
             Every year, millions of homeowners face repair problems that cost them 
@@ -187,9 +186,9 @@ export default function AboutPage() {
         >
           <Card className="p-8">
             <CardHeader className="text-center pb-6">
-              <CardTitle className="text-headline-2">Get in Touch</CardTitle>
+              <CardTitle className="text-headline-2">Get in touch</CardTitle>
               <CardDescription className="text-body-large">
-                Have questions or feedback? We'd love to hear from you.
+                Questions or feedback? We'd love to hear from you.
               </CardDescription>
             </CardHeader>
             
@@ -269,20 +268,20 @@ export default function AboutPage() {
           viewport={{ once: true }}
           className="mt-24 text-center"
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <div className="text-display-3 font-bold text-gradient mb-2">10K+</div>
-              <p className="text-body text-gray-600">Happy Homeowners</p>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div>
+                <div className="text-display-3 font-bold text-gradient mb-2">10K+</div>
+                <p className="text-body text-gray-600">Happy Homeowners</p>
+              </div>
+              <div>
+                <div className="text-display-3 font-bold text-gradient mb-2">50K+</div>
+                <p className="text-body text-gray-600">Problems Solved</p>
+              </div>
+              <div>
+                <div className="text-display-3 font-bold text-gradient mb-2">$2M+</div>
+                <p className="text-body text-gray-600">Saved</p>
+              </div>
             </div>
-            <div>
-              <div className="text-display-3 font-bold text-gradient mb-2">50K+</div>
-              <p className="text-body text-gray-600">Problems Solved</p>
-            </div>
-            <div>
-              <div className="text-display-3 font-bold text-gradient mb-2">$2M+</div>
-              <p className="text-body text-gray-600">Money Saved</p>
-            </div>
-          </div>
         </motion.div>
       </div>
     </div>

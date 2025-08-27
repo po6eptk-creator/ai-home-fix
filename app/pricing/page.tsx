@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +10,7 @@ const plans = [
   {
     name: 'Free',
     description: 'Perfect for trying our AI assistant',
-    price: '$0',
+    price: { monthly: '$0', annual: '$0' },
     period: 'forever',
     features: [
       '2 diagnoses',
@@ -25,8 +26,8 @@ const plans = [
   {
     name: 'Pro',
     description: 'For homeowners who want unlimited access',
-    price: '$19',
-    period: 'per month',
+    price: { monthly: '$19', annual: '$16' },
+    period: { monthly: 'per month', annual: 'per month' },
     features: [
       'Unlimited diagnoses',
       'Priority AI processing',
@@ -43,8 +44,8 @@ const plans = [
   {
     name: 'Business',
     description: 'For contractors and property managers',
-    price: '$49',
-    period: 'per month',
+    price: { monthly: '$49', annual: '$42' },
+    period: { monthly: 'per month', annual: 'per month' },
     features: [
       'Everything in Pro',
       'Team collaboration',
@@ -61,7 +62,71 @@ const plans = [
   }
 ];
 
+const comparisonFeatures = [
+  {
+    feature: 'Diagnoses per month',
+    free: '2',
+    pro: 'Unlimited',
+    business: 'Unlimited'
+  },
+  {
+    feature: 'AI Processing Speed',
+    free: 'Standard',
+    pro: 'Priority',
+    business: 'Priority'
+  },
+  {
+    feature: 'Step-by-step Guides',
+    free: 'Basic',
+    pro: 'Detailed + Photos',
+    business: 'Detailed + Photos'
+  },
+  {
+    feature: 'Parts & Tools',
+    free: '—',
+    pro: '✓',
+    business: '✓'
+  },
+  {
+    feature: 'Export to PDF',
+    free: '—',
+    pro: '✓',
+    business: '✓'
+  },
+  {
+    feature: 'Email Support',
+    free: '—',
+    pro: '✓',
+    business: 'Priority'
+  },
+  {
+    feature: 'Team Collaboration',
+    free: '—',
+    pro: '—',
+    business: '✓'
+  },
+  {
+    feature: 'API Access',
+    free: '—',
+    pro: '—',
+    business: '✓'
+  },
+  {
+    feature: 'Bulk Uploads',
+    free: '—',
+    pro: '—',
+    business: '✓'
+  },
+  {
+    feature: 'Analytics Dashboard',
+    free: '—',
+    pro: '—',
+    business: '✓'
+  }
+];
+
 export default function PricingPage() {
+  const [isAnnual, setIsAnnual] = useState(false);
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       <div className="container-apple py-12">
@@ -78,6 +143,38 @@ export default function PricingPage() {
           <p className="text-headline-2 text-gray-600 mb-8 max-w-3xl mx-auto">
             Start free. Upgrade when you're ready. 30-day money-back guarantee.
           </p>
+        </motion.div>
+
+        {/* Billing Toggle */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.1 }}
+          className="flex items-center justify-center gap-4 mb-12"
+        >
+          <span className={`text-sm font-medium transition-colors ${!isAnnual ? 'text-gray-900' : 'text-gray-500'}`}>
+            Monthly
+          </span>
+          <button
+            onClick={() => setIsAnnual(!isAnnual)}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              isAnnual ? 'bg-blue-600' : 'bg-gray-200'
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                isAnnual ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
+          <span className={`text-sm font-medium transition-colors ${isAnnual ? 'text-gray-900' : 'text-gray-500'}`}>
+            Annual
+          </span>
+          {isAnnual && (
+            <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+              Save 15%
+            </span>
+          )}
         </motion.div>
 
         {/* Pricing Cards */}
@@ -116,16 +213,19 @@ export default function PricingPage() {
                     <div className="text-center">
                       <div className="flex items-baseline justify-center gap-2">
                         <span className="text-display-3 font-bold text-gray-900">
-                          {plan.price}
+                          {typeof plan.price === 'string' ? plan.price : plan.price[isAnnual ? 'annual' : 'monthly']}
                         </span>
                         {plan.period !== 'forever' && (
                           <span className="text-body text-gray-500">
-                            /{plan.period}
+                            /{typeof plan.period === 'string' ? plan.period : plan.period[isAnnual ? 'annual' : 'monthly']}
                           </span>
                         )}
                       </div>
                       {plan.period === 'forever' && (
                         <p className="text-body text-gray-500 mt-2">No credit card required</p>
+                      )}
+                      {isAnnual && plan.name !== 'Free' && (
+                        <p className="text-sm text-green-600 font-medium mt-1">Save 15% annually</p>
                       )}
                     </div>
 
@@ -157,6 +257,72 @@ export default function PricingPage() {
             );
           })}
         </div>
+
+        {/* Feature Comparison Table */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="mt-24"
+        >
+          <div className="text-center mb-12">
+            <h2 className="text-headline-1 font-bold text-gray-900 mb-4">
+              Compare Plans
+            </h2>
+            <p className="text-body text-gray-600">
+              See exactly what's included in each plan
+            </p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <div className="min-w-[800px]">
+              {/* Table Header */}
+              <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="text-left">
+                  <h3 className="font-semibold text-gray-900">Features</h3>
+                </div>
+                <div className="text-center">
+                  <h3 className="font-semibold text-gray-900">Free</h3>
+                </div>
+                <div className="text-center relative">
+                  <h3 className="font-semibold text-gray-900">Pro</h3>
+                  <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-2 py-1 rounded-full text-xs">
+                    Most Popular
+                  </span>
+                </div>
+                <div className="text-center">
+                  <h3 className="font-semibold text-gray-900">Business</h3>
+                </div>
+              </div>
+
+              {/* Table Rows */}
+              <div className="space-y-4">
+                {comparisonFeatures.map((row, index) => (
+                  <div key={index} className="grid grid-cols-4 gap-4 items-center py-3 border-b border-gray-100">
+                    <div className="text-left">
+                      <span className="text-sm font-medium text-gray-700">{row.feature}</span>
+                    </div>
+                    <div className="text-center">
+                      <span className={`text-sm ${row.free === '—' ? 'text-gray-400' : 'text-gray-700'}`}>
+                        {row.free}
+                      </span>
+                    </div>
+                    <div className="text-center">
+                      <span className={`text-sm ${row.pro === '—' ? 'text-gray-400' : 'text-gray-700'}`}>
+                        {row.pro}
+                      </span>
+                    </div>
+                    <div className="text-center">
+                      <span className={`text-sm ${row.business === '—' ? 'text-gray-400' : 'text-gray-700'}`}>
+                        {row.business}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </motion.div>
 
         {/* Bottom line */}
         <motion.div
