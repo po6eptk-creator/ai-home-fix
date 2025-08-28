@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Home, Wrench, DollarSign, Info, FileText } from 'lucide-react';
+import { Menu, X, Home, Wrench, DollarSign, Info, FileText, Building } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useUserPlan } from '@/app/context/UserPlanContext';
 
@@ -11,6 +11,7 @@ const navigation = [
   { name: 'Home', href: '/', icon: Home },
   { name: 'Assistant', href: '/assistant', icon: Wrench },
   { name: 'Pricing', href: '/pricing', icon: DollarSign },
+  { name: 'B2B', href: '/b2b', icon: Building },
   { name: 'About', href: '/about', icon: Info },
   { name: 'Blog', href: '/blog', icon: FileText },
 ];
