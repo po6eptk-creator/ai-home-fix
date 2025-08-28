@@ -89,7 +89,7 @@ const testimonials = [
     role: "Property Manager",
     content: "AI Home Fix saves me hours of research. It instantly identifies problems and provides the right solutions.",
     rating: 5,
-    avatar: "/avatars/david.jpg",
+    avatar: "/avatars/alex.jpg",
     beforePhoto: "/testimonials/garage-before.jpg",
     afterPhoto: "/testimonials/garage-after.jpg",
     verified: true
@@ -446,7 +446,7 @@ export default function HomePage() {
                         )}
                         {testimonial.name === "David L." && (
                           <img 
-                            src="/avatars/david.jpg" 
+                            src="/avatars/alex.jpg" 
                             alt="David L." 
                             className="w-12 h-12 rounded-full object-cover" 
                           />

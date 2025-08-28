@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check, Star, Zap, Crown, Calendar, DollarSign, Shield, Users, X } from 'lucide-react';
 import { useUserPlan } from '@/app/context/UserPlanContext';
+import ContactSalesModal from '@/components/ContactSalesModal';
 
 const plans = [
   {
@@ -130,66 +131,92 @@ export default function PricingPage() {
   const { isPro, isBusiness } = useUserPlan();
   const [isAnnual, setIsAnnual] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [isContactSalesModalOpen, setIsContactSalesModalOpen] = useState(false);
   const [contactForm, setContactForm] = useState({ name: '', phone: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
   // Dynamic plans based on user's current plan
-  const getPlans = () => [
-    {
-      name: 'Free',
-      description: 'Perfect for trying our AI assistant',
-      price: { monthly: '$0', annual: '$0' },
-      period: 'forever',
-      features: [
-        '2 diagnoses',
-        'Basic step-by-step guide',
-        'Standard processing',
-        'Community support'
-      ],
-      icon: Star,
-      popular: false,
-      cta: isPro || isBusiness ? 'Use AI Helper' : 'Get Started',
-      href: '/assistant'
-    },
-    {
-      name: 'Pro',
-      description: 'For homeowners who want unlimited access',
-      price: { monthly: '$19', annual: '$16' },
-      period: { monthly: 'per month', annual: 'per month' },
-      features: [
-        'Unlimited diagnoses',
-        'Priority AI processing',
-        'Detailed repair guides with photos',
-        'Parts & tools recommendations',
-        'Email support',
-        'Export to PDF'
-      ],
-      icon: Zap,
-      popular: !isBusiness,
-      cta: isBusiness ? 'Upgraded' : (isPro ? 'Current Plan' : 'Start Pro Trial'),
-      href: isBusiness ? '#' : '/checkout?plan=pro'
-    },
-    {
-      name: 'Business',
-      description: 'For contractors and property managers',
-      price: { monthly: '$49', annual: '$42' },
-      period: { monthly: 'per month', annual: 'per month' },
-      features: [
-        'Everything in Pro',
-        'Team collaboration',
-        'Bulk uploads',
-        'API access',
-        'Priority support',
-        'Custom integrations',
-        'Analytics dashboard'
-      ],
-      icon: Crown,
-      popular: isBusiness,
-      cta: isBusiness ? 'Current Plan' : 'Contact Sales',
-      href: isBusiness ? '#' : '/contact'
-    }
-  ];
+  const getPlans = () => {
+    // Calculate annual prices with 45% discount
+    const proMonthlyPrice = 19;
+    const businessMonthlyPrice = 49;
+    
+    const proAnnualPrice = Math.round(proMonthlyPrice * 12 * 0.55); // 45% discount
+    const businessAnnualPrice = Math.round(businessMonthlyPrice * 12 * 0.55); // 45% discount
+    
+    const proMonthlyEquivalent = Math.round(proAnnualPrice / 12);
+    const businessMonthlyEquivalent = Math.round(businessAnnualPrice / 12);
+    
+    return [
+      {
+        name: 'Free',
+        description: 'Perfect for trying our AI assistant',
+        price: { monthly: '$0', annual: '$0' },
+        period: 'forever',
+        features: [
+          '2 diagnoses',
+          'Basic step-by-step guide',
+          'Standard processing',
+          'Community support'
+        ],
+        icon: Star,
+        popular: false,
+        cta: isPro || isBusiness ? 'Use AI Helper' : 'Get Started',
+        href: '/assistant'
+      },
+      {
+        name: 'Pro',
+        description: 'For homeowners who want unlimited access',
+        price: { 
+          monthly: `$${proMonthlyPrice}`, 
+          annual: `$${proMonthlyEquivalent}` 
+        },
+        period: { 
+          monthly: 'per month', 
+          annual: 'per month billed annually' 
+        },
+        features: [
+          'Unlimited diagnoses',
+          'Priority AI processing',
+          'Detailed repair guides with photos',
+          'Parts & tools recommendations',
+          'Email support',
+          'Export to PDF'
+        ],
+        icon: Zap,
+        popular: !isBusiness,
+        cta: isBusiness ? 'Upgraded' : (isPro ? 'Current Plan' : 'Start Pro Trial'),
+        href: isBusiness ? '#' : '/checkout?plan=pro'
+      },
+      {
+        name: 'Business',
+        description: 'For contractors and property managers',
+        price: { 
+          monthly: `$${businessMonthlyPrice}`, 
+          annual: `$${businessMonthlyEquivalent}` 
+        },
+        period: { 
+          monthly: 'per month', 
+          annual: 'per month billed annually' 
+        },
+        features: [
+          'Everything in Pro',
+          'Team collaboration',
+          'Bulk uploads',
+          'API access',
+          'Priority support',
+          'Custom integrations',
+          'Analytics dashboard'
+        ],
+        icon: Crown,
+        popular: isBusiness,
+        cta: isBusiness ? 'Current Plan' : 'Contact Sales',
+        href: isBusiness ? '#' : null,
+        isContactSales: !isBusiness
+      }
+    ];
+  };
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -300,7 +327,7 @@ export default function PricingPage() {
           </span>
           {isAnnual && (
             <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
-              Save 15%
+              Save 45%
             </span>
           )}
         </motion.div>
@@ -325,7 +352,7 @@ export default function PricingPage() {
                   </div>
                 )}
                 
-                <Card className={`h-full ${plan.popular ? 'ring-2 ring-blue-500 shadow-xl' : ''}`}>
+                <Card className={`h-full flex flex-col ${plan.popular ? 'ring-2 ring-blue-500 shadow-xl' : ''}`}>
                   <CardHeader className="text-center pb-6">
                     <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                       <Icon className="w-8 h-8 text-white" />
@@ -336,7 +363,7 @@ export default function PricingPage() {
                     </CardDescription>
                   </CardHeader>
                   
-                  <CardContent className="space-y-6">
+                  <CardContent className="flex flex-col h-full space-y-6">
                     {/* Price */}
                     <div className="text-center">
                       <div className="flex items-baseline justify-center gap-2">
@@ -353,12 +380,12 @@ export default function PricingPage() {
                         <p className="text-body text-gray-500 mt-2">No credit card required</p>
                       )}
                       {isAnnual && plan.name !== 'Free' && (
-                        <p className="text-sm text-green-600 font-medium mt-1">Save 15% annually</p>
+                        <p className="text-sm text-green-600 font-medium mt-1">Save 45% annually</p>
                       )}
                     </div>
 
                     {/* Features */}
-                    <ul className="space-y-4">
+                    <ul className="space-y-4 flex-grow">
                       {plan.features.map((feature, featureIndex) => (
                         <li key={featureIndex} className="flex items-start gap-3">
                           <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
@@ -368,17 +395,31 @@ export default function PricingPage() {
                     </ul>
 
                     {/* CTA Button */}
-                    <Button
-                      className={`w-full h-14 text-lg ${
-                        plan.popular ? 'bg-gradient-to-r from-blue-600 to-purple-600' : ''
-                      }`}
-                      variant={plan.popular ? 'gradient' : 'default'}
-                      asChild
-                    >
-                      <a href={plan.href}>
-                        {plan.cta}
-                      </a>
-                    </Button>
+                    <div className="mt-auto pt-6">
+                      {plan.isContactSales ? (
+                        <Button
+                          className={`w-full h-14 text-lg ${
+                            plan.popular ? 'bg-gradient-to-r from-blue-600 to-purple-600' : ''
+                          }`}
+                          variant={plan.popular ? 'gradient' : 'default'}
+                          onClick={() => setIsContactSalesModalOpen(true)}
+                        >
+                          {plan.cta}
+                        </Button>
+                      ) : (
+                        <Button
+                          className={`w-full h-14 text-lg ${
+                            plan.popular ? 'bg-gradient-to-r from-blue-600 to-purple-600' : ''
+                          }`}
+                          variant={plan.popular ? 'gradient' : 'default'}
+                          asChild
+                        >
+                          <a href={plan.href}>
+                            {plan.cta}
+                          </a>
+                        </Button>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -653,6 +694,12 @@ export default function PricingPage() {
             </div>
           </div>
         )}
+
+        {/* Contact Sales Modal */}
+        <ContactSalesModal 
+          isOpen={isContactSalesModalOpen} 
+          onClose={() => setIsContactSalesModalOpen(false)} 
+        />
       </div>
     </div>
   );

@@ -5,9 +5,10 @@ import { DiagnosisResult } from '@/types/diagnosis';
 interface DiagnosisDisplayProps {
   diagnosis: DiagnosisResult;
   problemDescription?: string;
+  amazonCategoryLinks?: Record<string, {tools: string; parts: string}>;
 }
 
-export default function DiagnosisDisplay({ diagnosis, problemDescription }: DiagnosisDisplayProps) {
+export default function DiagnosisDisplay({ diagnosis, problemDescription, amazonCategoryLinks }: DiagnosisDisplayProps) {
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'high':
@@ -36,25 +37,37 @@ export default function DiagnosisDisplay({ diagnosis, problemDescription }: Diag
   };
 
   const createDynamicAmazonLink = (itemName: string) => {
-    if (!problemDescription) {
-      // Fallback to general repair search if no problem description
-      return createSearchLink('repair tools', 'amazon');
+    // Get the diagnosis category (lowercase for matching)
+    const diagnosisCategory = diagnosis.safety.category?.toLowerCase() || 'default';
+    
+    // Use category-based Amazon links if available
+    if (amazonCategoryLinks && amazonCategoryLinks[diagnosisCategory]) {
+      const categoryLinks = amazonCategoryLinks[diagnosisCategory];
+      
+      // Map item names to category-specific links
+      if (itemName === 'Basic tools') {
+        return categoryLinks.tools;
+      } else if (itemName === 'Common household items') {
+        return categoryLinks.parts;
+      }
     }
-
-    // Extract keywords from problem description (take first 2-3 words)
-    const keywords = problemDescription
-      .split(' ')
-      .slice(0, 3)
-      .join('+');
-
-    // Create dynamic Amazon search URLs based on item type
-    const amazonLinks: { [key: string]: string } = {
-      'Basic tools': `https://www.amazon.com/s?k=repair+tools+${keywords}`,
-      'Common household items': `https://www.amazon.com/s?k=repair+supplies+${keywords}`,
+    
+    // Fallback to default category links
+    if (amazonCategoryLinks?.default) {
+      if (itemName === 'Basic tools') {
+        return amazonCategoryLinks.default.tools;
+      } else if (itemName === 'Common household items') {
+        return amazonCategoryLinks.default.parts;
+      }
+    }
+    
+    // Final fallback to generic search
+    const fallbackLinks: { [key: string]: string } = {
+      'Basic tools': 'https://www.amazon.com/s?i=tools&bbn=552690&rh=n%3A228013%2Cn%3A552690%2Cn%3A553402',
+      'Common household items': 'https://www.amazon.com/s?i=garden&rh=n%3A553764',
     };
 
-    // Return dynamic link if available, otherwise fallback to general search
-    return amazonLinks[itemName] || createSearchLink('repair tools', 'amazon');
+    return fallbackLinks[itemName] || createSearchLink('repair tools', 'amazon');
   };
 
   return (

@@ -227,7 +227,7 @@ export async function POST(request: NextRequest) {
     - If analyzing an image, describe what you see and provide specific advice based on the visual evidence`;
 
     // Prepare user message content
-    let userContent: string | Array<any>;
+    let userContent: string | Array<unknown>;
     
     // If image is provided, use vision model with both text and image
     if (body.imageBase64) {
@@ -242,7 +242,7 @@ export async function POST(request: NextRequest) {
             url: `data:image/jpeg;base64,${body.imageBase64}`
           }
         }
-      ];
+      ] as Array<unknown>;
     } else {
       // Text-only request
       userContent = body.description;
@@ -258,7 +258,8 @@ export async function POST(request: NextRequest) {
         },
         {
           role: 'user',
-          content: userContent
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          content: userContent as any
         }
       ],
       max_tokens: 1000,

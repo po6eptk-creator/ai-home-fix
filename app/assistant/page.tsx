@@ -38,6 +38,45 @@ export default function AssistantPage() {
     'Landscaping'
   ];
 
+  const amazonCategoryLinks: Record<string, {tools: string; parts: string}> = {
+    plumbing: {
+      tools: "https://www.amazon.com/s?i=tools&rh=n%3A680468011",
+      parts: "https://www.amazon.com/s?i=hi&rh=n%3A13397491"
+    },
+    carpentry: {
+      tools: "https://www.amazon.com/s?i=tools&rh=n%3A552690",
+      parts: "https://www.amazon.com/s?i=hi&rh=n%3A552690011"
+    },
+    electrical: {
+      tools: "https://www.amazon.com/s?i=tools&rh=n%3A495224",
+      parts: "https://www.amazon.com/s?i=hi&rh=n%3A498796"
+    },
+    hvac: {
+      tools: "https://www.amazon.com/s?i=tools&rh=n%3A680468011",
+      parts: "https://www.amazon.com/s?i=hi&rh=n%3A13397491"
+    },
+    appliances: {
+      tools: "https://www.amazon.com/s?i=tools&rh=n%3A680468011",
+      parts: "https://www.amazon.com/s?i=hi&rh=n%3A13397491"
+    },
+    drywall: {
+      tools: "https://www.amazon.com/s?i=tools&rh=n%3A552690",
+      parts: "https://www.amazon.com/s?i=hi&rh=n%3A552690011"
+    },
+    roofing: {
+      tools: "https://www.amazon.com/s?i=tools&rh=n%3A552690",
+      parts: "https://www.amazon.com/s?i=hi&rh=n%3A552690011"
+    },
+    landscaping: {
+      tools: "https://www.amazon.com/s?i=tools&rh=n%3A552690",
+      parts: "https://www.amazon.com/s?i=hi&rh=n%3A553764"
+    },
+    default: {
+      tools: "https://www.amazon.com/s?i=tools",
+      parts: "https://www.amazon.com/s?i=hi"
+    }
+  };
+
 
 
   const validateImage = (file: File): { isValid: boolean; errorType?: 'file-size' | 'format' } => {
@@ -161,13 +200,14 @@ export default function AssistantPage() {
       return;
     }
 
-    // Check diagnosis limit for free users
+    // Check diagnosis limit for free users only
     if (!isPro && !isBusiness && diagnosisCount >= 2) {
       setShowPricingModal(true);
       return;
     }
 
-    if (remainingDiagnoses <= 0) {
+    // Check remaining diagnoses for free users only
+    if (!isPro && !isBusiness && remainingDiagnoses <= 0) {
       setError('No diagnoses remaining. Please purchase more credits.');
       return;
     }
@@ -268,10 +308,12 @@ export default function AssistantPage() {
       setDiagnosisCount(newCount);
       localStorage.setItem('diagnosisCount', newCount.toString());
       
-      // Deduct one diagnosis (for backward compatibility)
-      const newRemaining = remainingDiagnoses - 1;
-      setRemainingDiagnoses(newRemaining);
-      localStorage.setItem('remainingDiagnoses', newRemaining.toString());
+      // Deduct one diagnosis only for free users (for backward compatibility)
+      if (!isPro && !isBusiness) {
+        const newRemaining = remainingDiagnoses - 1;
+        setRemainingDiagnoses(newRemaining);
+        localStorage.setItem('remainingDiagnoses', newRemaining.toString());
+      }
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -609,7 +651,11 @@ export default function AssistantPage() {
             transition={{ duration: 0.8 }}
             className="max-w-4xl mx-auto"
           >
-            <DiagnosisDisplay diagnosis={diagnosis} problemDescription={problemDescription} />
+            <DiagnosisDisplay 
+              diagnosis={diagnosis} 
+              problemDescription={problemDescription} 
+              amazonCategoryLinks={amazonCategoryLinks}
+            />
             <div className="text-center mt-8">
               <Button
                 onClick={() => {

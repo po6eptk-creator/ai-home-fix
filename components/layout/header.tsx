@@ -25,8 +25,12 @@ export default function Header() {
       setIsScrolled(window.scrollY > 10);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    try {
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
+    } catch (error) {
+      console.warn('Failed to add scroll listener:', error);
+    }
   }, []);
 
   return (

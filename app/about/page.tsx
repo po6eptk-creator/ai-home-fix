@@ -196,7 +196,7 @@ export default function AboutPage() {
               Meet Our Team
             </h2>
             <p className="text-body-large text-gray-600 max-w-2xl mx-auto">
-              We're a small team of AI researchers, engineers, and home repair 
+              We&apos;re a small team of AI researchers, engineers, and home repair 
               enthusiasts passionate about making home maintenance accessible to everyone.
             </p>
           </div>
@@ -247,7 +247,7 @@ export default function AboutPage() {
             <CardHeader className="text-center pb-6">
               <CardTitle className="text-headline-2">Get in touch</CardTitle>
               <CardDescription className="text-body-large">
-                Questions or feedback? We'd love to hear from you.
+                Questions or feedback? We&apos;d love to hear from you.
               </CardDescription>
             </CardHeader>
             
@@ -353,7 +353,7 @@ export default function AboutPage() {
                   Thank you!
                 </h3>
                 <p className="text-gray-600">
-                  Your message has been sent successfully. We'll get back to you soon.
+                  Your message has been sent successfully. We&apos;ll get back to you soon.
                 </p>
               </div>
             </div>

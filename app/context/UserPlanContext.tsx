@@ -20,25 +20,36 @@ interface UserPlanProviderProps {
 
 export function UserPlanProvider({ children }: UserPlanProviderProps) {
   const [userPlan, setUserPlanState] = useState<UserPlan>('free');
+  const [hasError, setHasError] = useState(false);
 
   // Load user plan from localStorage on mount
   useEffect(() => {
-    const savedPlan = localStorage.getItem('userPlan') as UserPlan;
-    if (savedPlan && ['free', 'pro', 'business'].includes(savedPlan)) {
-      setUserPlanState(savedPlan);
+    try {
+      const savedPlan = localStorage.getItem('userPlan') as UserPlan;
+      if (savedPlan && ['free', 'pro', 'business'].includes(savedPlan)) {
+        setUserPlanState(savedPlan);
+      }
+    } catch (error) {
+      console.warn('Failed to load user plan from localStorage:', error);
+      setHasError(true);
     }
   }, []);
 
   // Set user plan and persist to localStorage
   const setUserPlan = (plan: UserPlan) => {
     setUserPlanState(plan);
-    localStorage.setItem('userPlan', plan);
-    
-    // Also update the legacy 'plan' key for backward compatibility
-    if (plan === 'pro' || plan === 'business') {
-      localStorage.setItem('plan', plan);
-    } else {
-      localStorage.removeItem('plan');
+    try {
+      localStorage.setItem('userPlan', plan);
+      
+      // Also update the legacy 'plan' key for backward compatibility
+      if (plan === 'pro' || plan === 'business') {
+        localStorage.setItem('plan', plan);
+      } else {
+        localStorage.removeItem('plan');
+      }
+    } catch (error) {
+      console.warn('Failed to save user plan to localStorage:', error);
+      setHasError(true);
     }
   };
 
@@ -50,6 +61,11 @@ export function UserPlanProvider({ children }: UserPlanProviderProps) {
     isFree: userPlan === 'free'
   };
 
+  // If there's an error, render children without context to prevent crashes
+  if (hasError) {
+    return <>{children}</>;
+  }
+
   return (
     <UserPlanContext.Provider value={value}>
       {children}
@@ -60,7 +76,14 @@ export function UserPlanProvider({ children }: UserPlanProviderProps) {
 export function useUserPlan() {
   const context = useContext(UserPlanContext);
   if (context === undefined) {
-    throw new Error('useUserPlan must be used within a UserPlanProvider');
+    // Return a fallback context instead of throwing
+    return {
+      userPlan: 'free' as UserPlan,
+      setUserPlan: () => {},
+      isPro: false,
+      isBusiness: false,
+      isFree: true
+    };
   }
   return context;
 }
