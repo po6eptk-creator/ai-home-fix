@@ -1,10 +1,10 @@
 import Link from 'next/link';
-import { Wrench, Mail, Twitter, Linkedin, Github } from 'lucide-react';
+import { Wrench } from 'lucide-react';
 
 export default function Footer() {
   return (
     <footer className="bg-gray-50 border-t border-gray-200">
-      <div className="container-apple">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-16">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Brand */}
@@ -19,32 +19,6 @@ export default function Footer() {
                 Transform your home repairs with AI-powered diagnostics. Get instant, 
                 accurate solutions for any household problem.
               </p>
-              <div className="flex space-x-4">
-                <a
-                  href="mailto:hello@aihomefix.com"
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <Mail className="w-5 h-5" />
-                </a>
-                <a
-                  href="https://twitter.com/aihomefix"
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <Twitter className="w-5 h-5" />
-                </a>
-                <a
-                  href="https://linkedin.com/company/aihomefix"
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <Linkedin className="w-5 h-5" />
-                </a>
-                <a
-                  href="https://github.com/aihomefix"
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <Github className="w-5 h-5" />
-                </a>
-              </div>
             </div>
 
             {/* Product */}
@@ -96,7 +70,7 @@ export default function Footer() {
           <div className="border-t border-gray-200 pt-8 mt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <p className="text-gray-500 text-sm">
-                © 2024 AI Home Fix. All rights reserved.
+                © 2025 AI Home Fix. All rights reserved.
               </p>
               <p className="text-gray-500 text-sm mt-2 md:mt-0">
                 Made with ❤️ for homeowners everywhere

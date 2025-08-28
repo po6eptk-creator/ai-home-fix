@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/Badge';
+import { useUserPlan } from '@/app/context/UserPlanContext';
 import { 
   Zap, 
   Shield, 
@@ -56,7 +57,7 @@ const testimonials = [
   {
     name: "Sarah J.",
     role: "Homeowner",
-    content: "Fixed my leaking faucet in 10 minutes. I would've called a plumber. The guide was clear and safe.",
+    content: "Fixed my leaking faucet in 10 minutes using AI Home Fix. I would've called a plumber otherwise—clear and safe guide!",
     rating: 5,
     avatar: "/avatars/sarah.jpg",
     beforePhoto: "/testimonials/faucet-before.jpg",
@@ -66,7 +67,7 @@ const testimonials = [
   {
     name: "Mike C.",
     role: "DIY Enthusiast",
-    content: "Explained exactly what part I needed. Saved me $180 on a service call.",
+    content: "AI Home Fix explained exactly what part I needed. Saved me $180 on a service call.",
     rating: 5,
     avatar: "/avatars/mike.jpg",
     beforePhoto: "/testimonials/outlet-before.jpg",
@@ -76,7 +77,7 @@ const testimonials = [
   {
     name: "Emily R.",
     role: "First-time Homeowner",
-    content: "Even as a beginner, I felt confident. Step-by-step with photos, plus safety notes.",
+    content: "Even as a beginner, AI Home Fix gave me confidence. Step-by-step with photos and safety notes.",
     rating: 5,
     avatar: "/avatars/emily.jpg",
     beforePhoto: "/testimonials/drain-before.jpg",
@@ -86,7 +87,7 @@ const testimonials = [
   {
     name: "David L.",
     role: "Property Manager",
-    content: "Saves me hours of research. The AI instantly identifies the problem and gives me the exact solution.",
+    content: "AI Home Fix saves me hours of research. It instantly identifies problems and provides the right solutions.",
     rating: 5,
     avatar: "/avatars/david.jpg",
     beforePhoto: "/testimonials/garage-before.jpg",
@@ -96,7 +97,7 @@ const testimonials = [
   {
     name: "Lisa M.",
     role: "Homeowner",
-    content: "The safety warnings are so helpful. I never would have known to turn off the water first!",
+    content: "AI Home Fix's safety warnings are so helpful. I never would have known to turn off the water first!",
     rating: 5,
     avatar: "/avatars/lisa.jpg",
     beforePhoto: "/testimonials/water-heater-before.jpg",
@@ -106,6 +107,8 @@ const testimonials = [
 ];
 
 export default function HomePage() {
+  const { isPro, isBusiness } = useUserPlan();
+
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
@@ -128,7 +131,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Button size="lg" className="h-14 px-8 text-lg font-semibold bg-black hover:bg-gray-800" asChild>
                   <Link href="/assistant">
-                    Start Free Trial
+                    {isPro || isBusiness ? 'Use AI Helper' : 'Start Free Trial'}
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Link>
                 </Button>
@@ -137,7 +140,7 @@ export default function HomePage() {
                 </Button>
               </div>
               <p className="text-sm text-gray-500 mt-4">
-                2 free diagnoses • No credit card needed
+                {isPro || isBusiness ? 'Unlimited access' : '2 free diagnoses • No credit card needed'}
               </p>
             </motion.div>
 
@@ -418,46 +421,66 @@ export default function HomePage() {
                 >
                   <Card className="h-full bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300">
                     <CardContent className="p-6">
-                      {/* Header with Avatar and Verification */}
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-                            <span className="text-white font-semibold text-sm">
-                              {testimonial.name.split(' ').map(n => n[0]).join('')}
-                            </span>
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <p className="font-semibold text-gray-900">{testimonial.name}</p>
-                              {testimonial.verified && (
-                                <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs font-medium">
-                                  ✓ Verified
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-sm text-gray-500">{testimonial.role}</p>
-                          </div>
+                      {/* Header with Avatar and Name */}
+                      <div className="flex items-center gap-3 mb-3">
+                        {testimonial.name === "Sarah J." && (
+                          <img 
+                            src="/avatars/sarah.jpg" 
+                            alt="Sarah J." 
+                            className="w-12 h-12 rounded-full object-cover" 
+                          />
+                        )}
+                        {testimonial.name === "Mike C." && (
+                          <img 
+                            src="/avatars/mike.jpg" 
+                            alt="Mike C." 
+                            className="w-12 h-12 rounded-full object-cover" 
+                          />
+                        )}
+                        {testimonial.name === "Emily R." && (
+                          <img 
+                            src="/avatars/emily.jpg" 
+                            alt="Emily R." 
+                            className="w-12 h-12 rounded-full object-cover" 
+                          />
+                        )}
+                        {testimonial.name === "David L." && (
+                          <img 
+                            src="/avatars/david.jpg" 
+                            alt="David L." 
+                            className="w-12 h-12 rounded-full object-cover" 
+                          />
+                        )}
+                        {testimonial.name === "Lisa M." && (
+                          <img 
+                            src="/avatars/lisa.jpg" 
+                            alt="Lisa M." 
+                            className="w-12 h-12 rounded-full object-cover" 
+                          />
+                        )}
+                        <div>
+                          <p className="font-semibold text-gray-900 whitespace-nowrap">{testimonial.name}</p>
                         </div>
+                      </div>
+
+                      {/* Stars and Verified Badge */}
+                      <div className="flex items-center gap-2 mb-2">
                         <div className="flex">
                           {[...Array(testimonial.rating)].map((_, i) => (
                             <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
                           ))}
                         </div>
+                        {testimonial.verified && (
+                          <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs font-medium">
+                            ✓ Verified
+                          </span>
+                        )}
                       </div>
 
-                      {/* Before/After Photos */}
-                      <div className="flex gap-2 mb-4">
-                        <div className="flex-1 bg-gray-100 rounded-lg p-2 text-center">
-                          <div className="w-full h-16 bg-gradient-to-br from-gray-200 to-gray-300 rounded flex items-center justify-center">
-                            <span className="text-xs text-gray-500">Before</span>
-                          </div>
-                        </div>
-                        <div className="flex-1 bg-gray-100 rounded-lg p-2 text-center">
-                          <div className="w-full h-16 bg-gradient-to-br from-green-200 to-green-300 rounded flex items-center justify-center">
-                            <span className="text-xs text-green-600">After</span>
-                          </div>
-                        </div>
-                      </div>
+                      {/* Role */}
+                      <p className="text-sm text-gray-500 mb-4">{testimonial.role}</p>
+
+
 
                       {/* Testimonial Content */}
                       <p className="text-sm text-gray-700 leading-relaxed">
@@ -491,7 +514,7 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="secondary" size="lg" className="h-14 px-8 text-lg font-semibold bg-white text-blue-600 hover:bg-gray-100" asChild>
                 <Link href="/assistant">
-                  Start Free Trial
+                  {isPro || isBusiness ? 'Use AI Helper' : 'Start Free Trial'}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>
@@ -500,7 +523,7 @@ export default function HomePage() {
               </Button>
             </div>
             <p className="text-sm text-blue-200 mt-4">
-              2 free diagnoses • Cancel anytime
+              {isPro || isBusiness ? 'Unlimited access' : '2 free diagnoses • Cancel anytime'}
             </p>
           </motion.div>
         </div>

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
+import { UserPlanProvider } from "@/app/context/UserPlanContext";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -68,11 +69,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="bg-white text-gray-900 antialiased font-sans">
-        <Header />
-        <main className="pt-16 lg:pt-20 min-h-screen">
-          {children}
-        </main>
-        <Footer />
+        <UserPlanProvider>
+          <Header />
+          <main className="pt-16 lg:pt-20 min-h-screen">
+            {children}
+          </main>
+          <Footer />
+        </UserPlanProvider>
       </body>
     </html>
   );

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { Camera, Upload, X } from 'lucide-react';
+import { Upload, X } from 'lucide-react';
 
 interface ImageUploadProps {
   onImageChange: (file: File | null) => void;
@@ -11,10 +11,8 @@ interface ImageUploadProps {
 
 export default function ImageUpload({ onImageChange, imagePreview }: ImageUploadProps) {
   const [isDragOver, setIsDragOver] = useState(false);
-  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [isSampleImage, setIsSampleImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
 
   // Handle paste events
   useEffect(() => {
@@ -73,52 +71,9 @@ export default function ImageUpload({ onImageChange, imagePreview }: ImageUpload
 
   const handleRemove = () => {
     onImageChange(null);
+    setIsSampleImage(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
-    }
-  };
-
-  const startCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } 
-      });
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        setIsCameraActive(true);
-      }
-    } catch (err) {
-      console.error('Error accessing camera:', err);
-      alert('Unable to access camera. Please check permissions.');
-    }
-  };
-
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
-    }
-    setIsCameraActive(false);
-  };
-
-  const capturePhoto = () => {
-    if (videoRef.current) {
-      const canvas = document.createElement('canvas');
-      canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoRef.current.videoHeight;
-      const ctx = canvas.getContext('2d');
-      
-      if (ctx) {
-        ctx.drawImage(videoRef.current, 0, 0);
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const file = new File([blob], 'camera-photo.jpg', { type: 'image/jpeg' });
-            onImageChange(file);
-            stopCamera();
-          }
-        }, 'image/jpeg');
-      }
     }
   };
 
@@ -164,18 +119,11 @@ export default function ImageUpload({ onImageChange, imagePreview }: ImageUpload
             </div>
           </div>
 
-          {/* Camera and Alternative Options */}
-          <div className="flex gap-3">
-            <button
-              onClick={startCamera}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-md"
-            >
-              <Camera className="w-4 h-4" />
-              <span>Use Camera</span>
-            </button>
+          {/* Browse Files Button */}
+          <div className="flex justify-center">
             <button
               onClick={handleClick}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-md"
+              className="flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-md"
             >
               <Upload className="w-4 h-4" />
               <span>Browse Files</span>
@@ -187,7 +135,7 @@ export default function ImageUpload({ onImageChange, imagePreview }: ImageUpload
           <div className="border border-gray-200 rounded-xl overflow-hidden">
             <Image
               src={imagePreview}
-              alt="Uploaded image"
+              alt={isSampleImage ? "Sample problem image" : "Uploaded image"}
               width={600}
               height={400}
               className="w-full h-80 object-cover"
@@ -202,38 +150,7 @@ export default function ImageUpload({ onImageChange, imagePreview }: ImageUpload
         </div>
       )}
 
-      {/* Camera Modal */}
-      {isCameraActive && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-md">
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-center">Take a Photo</h3>
-              <div className="relative">
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  className="w-full h-64 object-cover rounded-xl"
-                />
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={stopCamera}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-50 shadow-md"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={capturePhoto}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-md"
-                >
-                  Capture
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 }

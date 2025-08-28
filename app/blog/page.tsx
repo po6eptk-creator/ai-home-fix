@@ -5,63 +5,173 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Clock, ArrowRight, Camera } from 'lucide-react';
+import { Calendar, Clock, ArrowRight, Camera, Check } from 'lucide-react';
+
+// Helper function to format dates consistently (server and client)
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  };
+  return date.toLocaleDateString('en-US', options);
+};
 
 const blogPosts = [
   {
     slug: 'how-to-fix-leaking-faucet',
-    title: 'How to Fix a Leaking Faucet in 5 Simple Steps',
-    excerpt: 'Save money: Learn the most common causes of faucet leaks and how to fix them yourself with our step-by-step guide.',
-    image: '/blog/leaking-faucet.jpg',
+    title: 'How to Fix a Leaking Faucet in 10 Minutes',
+    excerpt: 'Step-by-step guide to stop common faucet leaks without calling a plumber. Learn causes, tools needed, and quick fix instructions.',
+    image: '/blog-images/faucet-leak.jpg',
     category: 'Plumbing',
-    readTime: '5 min read',
+    readTime: '10 min read',
     date: '2024-01-15',
     featured: true
+  },
+  {
+    slug: 'organize-garage-tools',
+    title: 'How to Organize Your Garage Tools',
+    excerpt: 'Simple system to keep tools tidy and easy to access. Learn pegboards, shelving units, labeling, and space-saving ideas.',
+    image: '/blog-images/garage-tools.jpg',
+    category: 'Garage',
+    readTime: '8 min read',
+    date: '2024-01-14'
+  },
+  {
+    slug: 'fixing-noisy-garage-door',
+    title: 'Fixing a Noisy Garage Door',
+    excerpt: 'Quiet down your garage door with basic maintenance. Learn lubrication tips, tightening bolts, and replacing worn rollers.',
+    image: '/blog-images/noisy-garage.jpg',
+    category: 'Garage',
+    readTime: '6 min read',
+    date: '2024-01-13'
+  },
+  {
+    slug: 'repairing-leaking-kitchen-sink-pipe',
+    title: 'Repairing a Leaking Kitchen Sink Pipe',
+    excerpt: 'Stop leaks under the sink with quick fixes. Learn identifying leak points, tightening connections, and replacing washers.',
+    image: '/blog-images/kitchen-pipe.jpg',
+    category: 'Kitchen',
+    readTime: '9 min read',
+    date: '2024-01-12'
+  },
+  {
+    slug: 'unclogging-dishwasher-drain',
+    title: 'Unclogging a Dishwasher Drain',
+    excerpt: 'Solve water drainage problems in your dishwasher. Learn checking filters, cleaning drain hose, and when to call a pro.',
+    image: '/blog-images/dishwasher-drain.jpg',
+    category: 'Kitchen',
+    readTime: '7 min read',
+    date: '2024-01-11'
+  },
+  {
+    slug: 'replace-showerhead',
+    title: 'How to Replace a Showerhead',
+    excerpt: 'Upgrade or fix your shower in minutes. Learn removing old showerhead, installing new one, and sealing properly.',
+    image: '/blog-images/showerhead.jpg',
+    category: 'Bathroom',
+    readTime: '5 min read',
+    date: '2024-01-10'
+  },
+  {
+    slug: 'fixing-running-toilet',
+    title: 'Fixing a Running Toilet',
+    excerpt: 'Save water and money by repairing a constantly running toilet. Learn adjusting flapper, fixing fill valve, and troubleshooting.',
+    image: '/blog-images/running-toilet.jpg',
+    category: 'Bathroom',
+    readTime: '8 min read',
+    date: '2024-01-09'
+  },
+  {
+    slug: 'unclogging-slow-drain-safely',
+    title: 'Unclogging a Slow Drain Safely',
+    excerpt: 'Easy methods to clear clogged sinks using household tools. Avoid harsh chemicals and learn preventive tips.',
+    image: '/blog-images/slow-drain.jpg',
+    category: 'Plumbing',
+    readTime: '8 min read',
+    date: '2024-01-08'
+  },
+  {
+    slug: 'reset-tripped-circuit-breaker',
+    title: 'How to Reset a Tripped Circuit Breaker',
+    excerpt: 'Understand why breakers trip and how to safely reset them. Learn safety warnings and when to call an electrician.',
+    image: '/blog-images/circuit-breaker.jpg',
+    category: 'Electrical',
+    readTime: '7 min read',
+    date: '2024-01-07'
+  },
+  {
+    slug: 'replacing-light-switch',
+    title: 'Replacing a Light Switch',
+    excerpt: 'Beginner-friendly guide to swap out a faulty switch. Learn tools needed, shutting off power, and wiring basics.',
+    image: '/blog-images/light-switch.jpg',
+    category: 'Electrical',
+    readTime: '12 min read',
+    date: '2024-01-06'
+  },
+  {
+    slug: 'fixing-small-holes-drywall',
+    title: 'Fixing Small Holes in Drywall',
+    excerpt: 'How to repair nail holes and dents with minimal tools. Complete guide to filling, sanding, priming, and painting.',
+    image: '/blog-images/small-holes.jpg',
+    category: 'Drywall',
+    readTime: '6 min read',
+    date: '2024-01-05'
+  },
+  {
+    slug: 'patching-medium-drywall-hole',
+    title: 'Patching a Medium-Sized Drywall Hole',
+    excerpt: 'Repair a larger hole using patch kits or scrap drywall. Step-by-step cutting, patching, taping, and finishing.',
+    image: '/blog-images/medium-hole.jpg',
+    category: 'Drywall',
+    readTime: '15 min read',
+    date: '2024-01-04'
   },
   {
     slug: 'electrical-outlet-repair',
     title: 'Electrical Outlet Not Working? Here\'s What to Check',
     excerpt: 'Save money: Don\'t call an electrician yet! Most outlet problems can be fixed with basic troubleshooting.',
-    image: '/blog/electrical-outlet.jpg',
+    image: '/blog-images/electrical-outlet.jpg',
     category: 'Electrical',
     readTime: '7 min read',
-    date: '2024-01-12'
+    date: '2024-01-03'
   },
   {
     slug: 'drywall-repair-guide',
     title: 'Complete Guide to Drywall Repair: From Small Holes to Large Damage',
     excerpt: 'Save money: Master the art of drywall repair with our comprehensive guide covering everything from nail holes to large patches.',
-    image: '/blog/drywall-repair.jpg',
+    image: '/blog-images/drywall-repair.jpg',
     category: 'Drywall',
     readTime: '12 min read',
-    date: '2024-01-10'
+    date: '2024-01-02'
   },
   {
     slug: 'kitchen-sink-clogged',
     title: 'Kitchen Sink Clogged? Try These 6 Solutions First',
     excerpt: 'Save money: Before calling a plumber, try these DIY solutions to unclog your kitchen sink.',
-    image: '/blog/kitchen-sink.jpg',
-    category: 'Plumbing',
+    image: '/blog-images/kitchen-sink.jpg',
+    category: 'Kitchen',
     readTime: '6 min read',
-    date: '2024-01-08'
+    date: '2024-01-01'
   },
   {
     slug: 'garage-door-repair',
     title: 'Garage Door Won\'t Open? Common Problems and Solutions',
     excerpt: 'Save money: Diagnose and fix common garage door issues with our troubleshooting guide.',
-    image: '/blog/garage-door.jpg',
+    image: '/blog-images/garage-door.jpg',
     category: 'Garage',
     readTime: '8 min read',
-    date: '2024-01-05'
+    date: '2023-12-31'
   },
   {
     slug: 'water-heater-troubleshooting',
     title: 'Water Heater Troubleshooting: No Hot Water?',
     excerpt: 'Save money: Don\'t take a cold shower! Learn how to diagnose and fix water heater problems.',
-    image: '/blog/water-heater.jpg',
+    image: '/blog-images/water-heater.jpg',
     category: 'Plumbing',
     readTime: '10 min read',
-    date: '2024-01-03'
+    date: '2023-12-30'
   }
 ];
 
@@ -77,6 +187,10 @@ const categories = [
 
 export default function BlogPage() {
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [error, setError] = useState('');
 
   const filteredPosts = selectedCategory === 'All' 
     ? blogPosts 
@@ -91,9 +205,48 @@ export default function BlogPage() {
     });
     window.location.href = `/assistant?${params.toString()}`;
   };
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setIsSubmitting(true);
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email');
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (response.ok) {
+        setSubmitSuccess(true);
+        setEmail('');
+        setTimeout(() => {
+          setSubmitSuccess(false);
+        }, 3000);
+      } else {
+        throw new Error('Failed to subscribe');
+      }
+    } catch (error) {
+      console.error('Newsletter subscription error:', error);
+      setError('Something went wrong, please try again');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      <div className="container-apple py-12">
+      <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 py-12">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -141,18 +294,15 @@ export default function BlogPage() {
           {filteredPosts.filter(post => post.featured).map((post) => (
             <Card key={post.slug} className="overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="bg-gradient-to-br from-blue-600 to-purple-600 h-64 lg:h-full flex items-center justify-center">
-                  <div className="text-center text-white">
-                    <Calendar className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                    <p className="text-lg opacity-75">Featured Post</p>
-                  </div>
+                <div className="relative h-64 lg:h-full overflow-hidden">
+                  <img
+                    src={post.image}
+                    alt={post.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                 </div>
                 <div className="p-8 flex flex-col justify-center">
-                  <div className="mb-4">
-                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                      {post.category}
-                    </span>
-                  </div>
                   <CardTitle className="text-headline-2 mb-4">
                     {post.title}
                   </CardTitle>
@@ -162,7 +312,7 @@ export default function BlogPage() {
                   <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
-                      <span>{new Date(post.date).toLocaleDateString()}</span>
+                      <span>{formatDate(post.date)}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
@@ -200,32 +350,29 @@ export default function BlogPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 + index * 0.1 }}
             >
-              <Card className="h-full overflow-hidden">
-                <div className="bg-gradient-to-br from-gray-100 to-gray-200 h-48 flex items-center justify-center">
-                  <div className="text-center text-gray-500">
-                    <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">Blog Image</p>
-                  </div>
+              <Card className="h-full overflow-hidden flex flex-col">
+                <div className="relative h-48 overflow-hidden">
+                  <img
+                    src={post.image}
+                    alt={post.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
                 </div>
-                <CardHeader>
-                  <div className="mb-2">
-                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-                      {post.category}
-                    </span>
-                  </div>
-                  <CardTitle className="text-headline-3 line-clamp-2">
-                    {post.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  <CardDescription className="text-body mb-4 line-clamp-3">
-                    {post.excerpt}
-                  </CardDescription>
-                  <div className="space-y-3">
+                <div className="flex flex-col flex-1">
+                  <CardHeader className="pt-6">
+                    <CardTitle className="text-headline-3 line-clamp-2">
+                      {post.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex-1">
+                    <CardDescription className="text-body mb-4 line-clamp-3">
+                      {post.excerpt}
+                    </CardDescription>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-sm text-gray-500">
                         <Calendar className="w-4 h-4" />
-                        <span>{new Date(post.date).toLocaleDateString()}</span>
+                        <span>{formatDate(post.date)}</span>
                       </div>
                       <Button variant="ghost" size="sm" asChild>
                         <Link href={`/blog/${post.slug}`}>
@@ -234,6 +381,8 @@ export default function BlogPage() {
                         </Link>
                       </Button>
                     </div>
+                  </CardContent>
+                  <div className="px-6 pb-4">
                     <Button 
                       variant="outline" 
                       size="sm"
@@ -244,7 +393,7 @@ export default function BlogPage() {
                       Open in Assistant
                     </Button>
                   </div>
-                </CardContent>
+                </div>
               </Card>
             </motion.div>
           ))}
@@ -268,19 +417,53 @@ export default function BlogPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:ring-2 focus:ring-white focus:outline-none"
-                />
-                <Button variant="secondary" size="lg">
-                  Subscribe
-                </Button>
-              </div>
+              <form onSubmit={handleNewsletterSubmit} className="space-y-4">
+                <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:ring-2 focus:ring-white focus:outline-none"
+                    disabled={isSubmitting}
+                  />
+                  <Button 
+                    type="submit"
+                    variant="secondary" 
+                    size="lg"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Subscribing...' : 'Subscribe'}
+                  </Button>
+                </div>
+                {error && (
+                  <p className="text-red-200 text-sm text-center">
+                    {error}
+                  </p>
+                )}
+              </form>
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* Success Modal */}
+        {submitSuccess && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Check className="w-8 h-8 text-green-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  Thank you!
+                </h3>
+                <p className="text-gray-600">
+                  Thank you for subscribing! You'll receive our DIY repair guides soon.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

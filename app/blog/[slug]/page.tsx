@@ -4,7 +4,18 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Clock, ArrowLeft, Share2, BookOpen } from 'lucide-react';
+import { Calendar, Clock, ArrowLeft, BookOpen } from 'lucide-react';
+
+// Helper function to format dates consistently (server and client)
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  };
+  return date.toLocaleDateString('en-US', options);
+};
 
 // This would normally come from a CMS or database
 const blogPost = {
@@ -26,44 +37,54 @@ const blogPost = {
     <h2>Tools You'll Need</h2>
     <p>Before starting any repair, gather these essential tools:</p>
     <ul>
-      <li>Adjustable wrench</li>
-      <li>Phillips and flathead screwdrivers</li>
-      <li>Plumber's tape</li>
-      <li>Replacement washers and O-rings</li>
-      <li>Clean cloth</li>
+      <li><strong>Adjustable wrench</strong></li>
+      <li><strong>Phillips and flathead screwdrivers</strong></li>
+      <li><strong>Plumber's tape</strong></li>
+      <li><strong>Replacement washers and O-rings</strong></li>
+      <li><strong>Clean cloth</strong></li>
     </ul>
 
-    <h2>Step 1: Turn Off the Water Supply</h2>
-    <p>Safety first! Locate the shut-off valves under your sink and turn them clockwise to stop the water flow. If you can't find individual valves, you may need to turn off the main water supply to your home.</p>
+    <h2>Step-by-Step Repair Process</h2>
 
-    <h2>Step 2: Remove the Faucet Handle</h2>
-    <p>Look for a small cap or cover on the handle. Remove it to reveal the screw that holds the handle in place. Use the appropriate screwdriver to remove the screw and lift off the handle.</p>
+    <h3>Step 1: Turn Off the Water Supply</h3>
+    <p>Safety first! Locate the <strong>shut-off valves</strong> under your sink and turn them clockwise to stop the water flow. If you can't find individual valves, you may need to turn off the <strong>main water supply</strong> to your home.</p>
 
-    <h2>Step 3: Access the Cartridge</h2>
-    <p>Once the handle is removed, you'll see the cartridge or stem. This is where the washer is located. Use your wrench to carefully remove the cartridge, being careful not to damage the threads.</p>
+    <h3>Step 2: Remove the Faucet Handle</h3>
+    <p>Look for a small cap or cover on the handle. Remove it to reveal the <strong>screw</strong> that holds the handle in place. Use the appropriate screwdriver to remove the screw and lift off the handle.</p>
 
-    <h2>Step 4: Replace the Washer</h2>
-    <p>Inspect the old washer for wear and damage. Replace it with a new washer of the same size. Also check the O-ring and replace it if necessary. Apply a small amount of plumber's grease to help with future maintenance.</p>
+    <h3>Step 3: Access the Cartridge</h3>
+    <p>Once the handle is removed, you'll see the <strong>cartridge or stem</strong>. This is where the washer is located. Use your wrench to carefully remove the cartridge, being careful not to damage the <strong>threads</strong>.</p>
 
-    <h2>Step 5: Reassemble and Test</h2>
-    <p>Carefully reassemble the faucet in reverse order. Make sure all parts are properly seated and tightened. Turn the water back on and test for leaks. If you still see leaks, you may need to replace the entire cartridge.</p>
+    <h3>Step 4: Replace the Washer</h3>
+    <p>Inspect the old washer for wear and damage. Replace it with a new washer of the same size. Also check the <strong>O-ring</strong> and replace it if necessary. Apply a small amount of <strong>plumber's grease</strong> to help with future maintenance.</p>
+
+    <h3>Step 5: Reassemble and Test</h3>
+    <p>Carefully reassemble the faucet in reverse order. Make sure all parts are properly seated and tightened. Turn the water back on and test for leaks. If you still see leaks, you may need to replace the entire <strong>cartridge</strong>.</p>
 
     <h2>When to Call a Professional</h2>
     <p>While most faucet leaks can be fixed DIY, consider calling a plumber if:</p>
     <ul>
       <li>The leak persists after repair</li>
-      <li>You're dealing with a complex faucet design</li>
-      <li>There are signs of water damage</li>
+      <li>You're dealing with a <strong>complex faucet design</strong></li>
+      <li>There are signs of <strong>water damage</strong></li>
       <li>You're not comfortable with plumbing work</li>
     </ul>
 
     <h2>Prevention Tips</h2>
     <p>To prevent future leaks:</p>
     <ul>
-      <li>Don't overtighten faucet handles</li>
+      <li>Don't <strong>overtighten</strong> faucet handles</li>
       <li>Replace washers every few years</li>
-      <li>Use quality replacement parts</li>
+      <li>Use <strong>quality replacement parts</strong></li>
       <li>Address leaks immediately</li>
+    </ul>
+
+    <h2>Safety Reminders</h2>
+    <ul>
+      <li>Always turn off the water supply before starting any repair</li>
+      <li>Use appropriate safety gear when working with tools</li>
+      <li>If you're unsure about any step, consult a professional</li>
+      <li>Keep your work area clean and well-lit</li>
     </ul>
   `,
   image: '/blog/leaking-faucet.jpg',
@@ -93,15 +114,7 @@ const relatedPosts = [
 export default function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   return (
     <div className="min-h-screen bg-white">
-      {/* Header Image */}
-      <div className="bg-gradient-to-br from-blue-600 to-purple-600 h-64 md:h-96 flex items-center justify-center">
-        <div className="text-center text-white">
-          <BookOpen className="w-16 h-16 mx-auto mb-4 opacity-50" />
-          <p className="text-lg opacity-75">Blog Header Image</p>
-        </div>
-      </div>
-
-      <div className="container-apple py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Article Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -110,42 +123,32 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
           className="max-w-4xl mx-auto mb-12"
         >
           <div className="mb-6">
-            <Link href="/blog" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4">
+            <Link href="/blog" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4 font-medium transition-colors">
               <ArrowLeft className="w-4 h-4" />
               Back to Blog
             </Link>
-            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-              {blogPost.category}
-            </span>
           </div>
 
-          <h1 className="text-display-2 font-bold text-gray-900 mb-6">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
             {blogPost.title}
           </h1>
 
-          <p className="text-headline-3 text-gray-600 mb-8">
+          <p className="text-xl text-gray-600 mb-8 leading-relaxed">
             {blogPost.excerpt}
           </p>
 
-          <div className="flex items-center gap-6 text-sm text-gray-500 mb-8">
+          <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500 mb-8">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              <span>{new Date(blogPost.date).toLocaleDateString()}</span>
+              <span className="font-medium">{formatDate(blogPost.date)}</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4" />
-              <span>{blogPost.readTime}</span>
+              <span className="font-medium">{blogPost.readTime}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span>By {blogPost.author}</span>
+              <span className="font-medium">By {blogPost.author}</span>
             </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <Button variant="outline" size="sm">
-              <Share2 className="w-4 h-4 mr-2" />
-              Share
-            </Button>
           </div>
         </motion.div>
 
@@ -157,7 +160,16 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
           className="max-w-4xl mx-auto mb-16"
         >
           <div 
-            className="prose prose-lg max-w-none"
+            className="prose prose-lg prose-gray max-w-none leading-relaxed
+              prose-headings:text-gray-900 prose-headings:font-bold
+              prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-6
+              prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4
+              prose-p:text-gray-700 prose-p:mb-6 prose-p:leading-relaxed prose-p:text-base
+              prose-ul:my-6 prose-ul:pl-6 prose-li:mb-3 prose-li:text-gray-700
+              prose-ol:my-6 prose-ol:pl-6 prose-li:mb-3 prose-li:text-gray-700
+              prose-strong:text-gray-900 prose-strong:font-semibold
+              prose-blockquote:border-l-4 prose-blockquote:border-blue-200 prose-blockquote:pl-4 prose-blockquote:italic
+              prose-hr:my-8 prose-hr:border-gray-200"
             dangerouslySetInnerHTML={{ __html: blogPost.content }}
           />
         </motion.div>
@@ -177,11 +189,6 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
             {relatedPosts.map((post, index) => (
               <Card key={post.slug} className="h-full">
                 <CardHeader>
-                  <div className="mb-2">
-                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-                      {post.category}
-                    </span>
-                  </div>
                   <CardTitle className="text-headline-3 line-clamp-2">
                     {post.title}
                   </CardTitle>
@@ -193,7 +200,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm text-gray-500">
                       <Calendar className="w-4 h-4" />
-                      <span>{new Date(post.date).toLocaleDateString()}</span>
+                      <span>{formatDate(post.date)}</span>
                     </div>
                     <Button variant="ghost" size="sm" asChild>
                       <Link href={`/blog/${post.slug}`}>

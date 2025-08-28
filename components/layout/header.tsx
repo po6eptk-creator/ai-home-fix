@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Home, Wrench, DollarSign, Info, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useUserPlan } from '@/app/context/UserPlanContext';
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
@@ -15,6 +16,7 @@ const navigation = [
 ];
 
 export default function Header() {
+  const { isPro, isBusiness } = useUserPlan();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -29,13 +31,13 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white shadow-sm ${
         isScrolled
-          ? 'backdrop-blur-apple border-b border-gray-200/20'
-          : 'bg-transparent'
+          ? 'border-b border-gray-200'
+          : ''
       }`}
     >
-      <div className="container-apple">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
@@ -61,7 +63,9 @@ export default function Header() {
           {/* CTA Button */}
           <div className="hidden lg:flex items-center space-x-4">
             <Button variant="secondary" size="sm" asChild>
-              <Link href="/assistant">Start Free Trial</Link>
+              <Link href="/assistant">
+                {isPro || isBusiness ? 'Use AI Helper' : 'Start Free Trial'}
+              </Link>
             </Button>
           </div>
 
@@ -104,7 +108,9 @@ export default function Header() {
                 })}
                 <div className="px-4 pt-4">
                   <Button className="w-full" asChild>
-                    <Link href="/assistant">Start Free Trial</Link>
+                    <Link href="/assistant">
+                      {isPro || isBusiness ? 'Use AI Helper' : 'Start Free Trial'}
+                    </Link>
                   </Button>
                 </div>
               </div>

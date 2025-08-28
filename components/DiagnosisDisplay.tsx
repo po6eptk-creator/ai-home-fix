@@ -4,9 +4,10 @@ import { DiagnosisResult } from '@/types/diagnosis';
 
 interface DiagnosisDisplayProps {
   diagnosis: DiagnosisResult;
+  problemDescription?: string;
 }
 
-export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
+export default function DiagnosisDisplay({ diagnosis, problemDescription }: DiagnosisDisplayProps) {
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'high':
@@ -32,6 +33,28 @@ export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
       default:
         return `https://www.google.com/search?q=${encodedQuery}`;
     }
+  };
+
+  const createDynamicAmazonLink = (itemName: string) => {
+    if (!problemDescription) {
+      // Fallback to general repair search if no problem description
+      return createSearchLink('repair tools', 'amazon');
+    }
+
+    // Extract keywords from problem description (take first 2-3 words)
+    const keywords = problemDescription
+      .split(' ')
+      .slice(0, 3)
+      .join('+');
+
+    // Create dynamic Amazon search URLs based on item type
+    const amazonLinks: { [key: string]: string } = {
+      'Basic tools': `https://www.amazon.com/s?k=repair+tools+${keywords}`,
+      'Common household items': `https://www.amazon.com/s?k=repair+supplies+${keywords}`,
+    };
+
+    // Return dynamic link if available, otherwise fallback to general search
+    return amazonLinks[itemName] || createSearchLink('repair tools', 'amazon');
   };
 
   return (
@@ -70,34 +93,19 @@ export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
         
         {/* Summary */}
         <div className="bg-blue-50 p-4 rounded-xl">
-          <p className="text-blue-900 font-medium">{diagnosis.diy.summary}</p>
+          <p className="text-gray-700 leading-relaxed">{diagnosis.diy.summary}</p>
         </div>
 
         {/* Steps */}
         <div>
           <h4 className="text-lg font-medium text-gray-900 mb-4">Steps to Fix</h4>
-          <div className="space-y-4">
+          <ol className="list-decimal pl-5 space-y-3">
             {diagnosis.diy.steps.map((step, index) => (
-              <div key={index} className="border border-gray-200 rounded-xl p-4 shadow-md">
-                <div className="flex items-start gap-4">
-                  <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-medium flex-shrink-0">
-                    {index + 1}
-                  </div>
-                  <div className="flex-1">
-                    <h5 className="font-medium text-gray-900 mb-1">{step.title}</h5>
-                    <p className="text-gray-700 mb-2">{step.detail}</p>
-                    {step.caution && (
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3">
-                        <p className="text-yellow-800 text-sm">
-                          <span className="font-medium">⚠️ Caution:</span> {step.caution}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <li key={index} className="text-gray-700 leading-relaxed">
+                {step.detail}
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
 
         {/* Tools & Parts */}
@@ -110,17 +118,14 @@ export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl shadow-md">
                   <span className="font-medium text-gray-900">{tool.name}</span>
                   <div className="flex gap-2">
-                    {tool.searchQueries.map((query, queryIndex) => (
-                      <a
-                        key={queryIndex}
-                        href={createSearchLink(query, 'amazon')}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                      >
-                        Buy
-                      </a>
-                    ))}
+                    <a
+                      href={createDynamicAmazonLink(tool.name)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                    >
+                      Buy
+                    </a>
                   </div>
                 </div>
               ))}
@@ -135,17 +140,14 @@ export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl shadow-md">
                   <span className="font-medium text-gray-900">{part.name}</span>
                   <div className="flex gap-2">
-                    {part.searchQueries.map((query, queryIndex) => (
-                      <a
-                        key={queryIndex}
-                        href={createSearchLink(query, 'amazon')}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                      >
-                        Buy
-                      </a>
-                    ))}
+                    <a
+                      href={createDynamicAmazonLink(part.name)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                    >
+                      Buy
+                    </a>
                   </div>
                 </div>
               ))}
@@ -155,10 +157,18 @@ export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
 
         {/* Cost Estimate */}
         <div className="bg-green-50 p-4 rounded-xl">
-          <h4 className="text-lg font-medium text-gray-900 mb-2">Estimated Time & Cost</h4>
-          <p className="text-green-800 font-semibold">
-            ${diagnosis.diy.estimatedCost.min} - ${diagnosis.diy.estimatedCost.max} {diagnosis.diy.estimatedCost.currency}
-          </p>
+          <h4 className="text-lg font-medium text-gray-900 mb-3">Estimated Time & Cost</h4>
+          <div className="space-y-2">
+            <p className="text-green-800 font-semibold">
+              ${Math.max(diagnosis.diy.estimatedCost.min, 20)} - ${Math.max(diagnosis.diy.estimatedCost.max, 50)} {diagnosis.diy.estimatedCost.currency}
+            </p>
+            <p className="text-gray-600 text-sm">
+              1-2 hours average repair time
+            </p>
+            <p className="text-gray-500 text-xs">
+              Hiring a pro can save you ~30% of the time
+            </p>
+          </div>
         </div>
       </div>
 
@@ -166,11 +176,11 @@ export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
       <div className="space-y-6">
         <h3 className="text-xl font-semibold text-gray-900">Safety Checks</h3>
         
-        {/* Global Notices */}
+        {/* Safety Tips */}
         {diagnosis.safety.globalNotices.length > 0 && (
-          <div className="bg-red-50 border border-red-200 p-4 rounded-xl">
+          <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 text-sm">
             {diagnosis.safety.globalNotices.map((notice, index) => (
-              <p key={index} className="text-red-800 text-sm mb-2 last:mb-0">
+              <p key={index} className="text-yellow-800 mb-2 last:mb-0">
                 {notice}
               </p>
             ))}
@@ -199,41 +209,41 @@ export default function DiagnosisDisplay({ diagnosis }: DiagnosisDisplayProps) {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+      <div className="mt-6 flex flex-col sm:flex-row gap-4">
         <a
-          href={createSearchLink(diagnosis.diy.parts.map(p => p.name).join(' '), 'amazon')}
+          href="https://www.taskrabbit.com/"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-xl font-medium hover:bg-blue-700 transition-colors text-center shadow-md"
+          className="flex-1 bg-black text-white py-3 px-6 rounded-xl font-medium hover:bg-gray-800 transition-colors text-center shadow-md"
         >
-          Download Repair Guide (PDF)
+          Call a Pro
         </a>
         <a
-          href={createSearchLink(diagnosis.diy.parts.map(p => p.name).join(' '), 'amazon')}
+          href="https://www.repairclinic.com/"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 bg-green-600 text-white py-3 px-6 rounded-xl font-medium hover:bg-green-700 transition-colors text-center shadow-md"
+          className="flex-1 bg-white text-black border-2 border-gray-300 py-3 px-6 rounded-xl font-medium hover:bg-gray-50 transition-colors text-center shadow-md"
         >
-          Order Parts
+          Buy Tools
         </a>
-        {diagnosis.safety.showHireProCTA && (
-          <a
-            href={`https://www.google.com/search?q=${encodeURIComponent(`${diagnosis.safety.category} repair professional near me`)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 bg-orange-600 text-white py-3 px-6 rounded-xl font-medium hover:bg-orange-700 transition-colors text-center shadow-md"
-          >
-            Book a Pro
-          </a>
-        )}
       </div>
 
-      {/* Tip Video */}
-      <div className="bg-gray-50 p-4 rounded-xl">
-        <p className="text-sm text-gray-600">
-          💡 <strong>Pro tip:</strong> Search for "{diagnosis.tipVideoQuery}" on YouTube for video tutorials.
+      {/* Pro Tip */}
+      <div className="bg-gray-50 p-6 rounded-xl">
+        <h4 className="text-lg font-semibold text-gray-900 mb-2">Pro Tip: Find video tutorials on YouTube</h4>
+        <p className="text-gray-600 mb-4">
+          Watch step-by-step video guides from real people fixing similar problems.
         </p>
+        <a
+          href={`https://www.youtube.com/results?search_query=${encodeURIComponent(diagnosis.tipVideoQuery || 'home repair tutorial')}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center bg-red-600 text-white px-6 py-2 rounded-md font-medium hover:bg-red-700 transition-colors"
+        >
+          Search on YouTube
+        </a>
       </div>
     </div>
   );
 }
+

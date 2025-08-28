@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check, Star, Zap, Crown } from 'lucide-react';
+import { Check, Star, Zap, Crown, Calendar, DollarSign, Shield, Users, X } from 'lucide-react';
+import { useUserPlan } from '@/app/context/UserPlanContext';
 
 const plans = [
   {
@@ -126,10 +127,137 @@ const comparisonFeatures = [
 ];
 
 export default function PricingPage() {
+  const { isPro, isBusiness } = useUserPlan();
   const [isAnnual, setIsAnnual] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [contactForm, setContactForm] = useState({ name: '', phone: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  // Dynamic plans based on user's current plan
+  const getPlans = () => [
+    {
+      name: 'Free',
+      description: 'Perfect for trying our AI assistant',
+      price: { monthly: '$0', annual: '$0' },
+      period: 'forever',
+      features: [
+        '2 diagnoses',
+        'Basic step-by-step guide',
+        'Standard processing',
+        'Community support'
+      ],
+      icon: Star,
+      popular: false,
+      cta: isPro || isBusiness ? 'Use AI Helper' : 'Get Started',
+      href: '/assistant'
+    },
+    {
+      name: 'Pro',
+      description: 'For homeowners who want unlimited access',
+      price: { monthly: '$19', annual: '$16' },
+      period: { monthly: 'per month', annual: 'per month' },
+      features: [
+        'Unlimited diagnoses',
+        'Priority AI processing',
+        'Detailed repair guides with photos',
+        'Parts & tools recommendations',
+        'Email support',
+        'Export to PDF'
+      ],
+      icon: Zap,
+      popular: !isBusiness,
+      cta: isBusiness ? 'Upgraded' : (isPro ? 'Current Plan' : 'Start Pro Trial'),
+      href: isBusiness ? '#' : '/checkout?plan=pro'
+    },
+    {
+      name: 'Business',
+      description: 'For contractors and property managers',
+      price: { monthly: '$49', annual: '$42' },
+      period: { monthly: 'per month', annual: 'per month' },
+      features: [
+        'Everything in Pro',
+        'Team collaboration',
+        'Bulk uploads',
+        'API access',
+        'Priority support',
+        'Custom integrations',
+        'Analytics dashboard'
+      ],
+      icon: Crown,
+      popular: isBusiness,
+      cta: isBusiness ? 'Current Plan' : 'Contact Sales',
+      href: isBusiness ? '#' : '/contact'
+    }
+  ];
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!contactForm.phone.trim()) {
+      alert('Please enter your phone number');
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: contactForm.name,
+          phone: contactForm.phone,
+        }),
+      });
+
+      if (response.ok) {
+        setSubmitSuccess(true);
+        setContactForm({ name: '', phone: '' });
+        setTimeout(() => {
+          setIsContactModalOpen(false);
+          setSubmitSuccess(false);
+        }, 2000);
+      } else {
+        throw new Error('Failed to submit');
+      }
+    } catch (error) {
+      console.error('Contact form error:', error);
+      alert('Failed to submit request. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const closeModal = () => {
+    setIsContactModalOpen(false);
+    setSubmitSuccess(false);
+    setContactForm({ name: '', phone: '' });
+  };
+
+  // Handle ESC key
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    };
+
+    if (isContactModalOpen) {
+      document.addEventListener('keydown', handleEsc);
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEsc);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isContactModalOpen]);
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      <div className="container-apple py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -179,7 +307,7 @@ export default function PricingPage() {
 
         {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {plans.map((plan, index) => {
+                      {getPlans().map((plan, index) => {
             const Icon = plan.icon;
             return (
               <motion.div
@@ -274,10 +402,10 @@ export default function PricingPage() {
             </p>
           </div>
 
-          <div className="overflow-x-auto">
-            <div className="min-w-[800px]">
+          <div className="overflow-x-auto rounded-xl border border-gray-200">
+            <div className="min-w-[800px] p-6">
               {/* Table Header */}
-              <div className="grid grid-cols-4 gap-4 mb-6">
+              <div className="grid grid-cols-4 gap-6 mb-8">
                 <div className="text-left">
                   <h3 className="font-semibold text-gray-900">Features</h3>
                 </div>
@@ -285,10 +413,12 @@ export default function PricingPage() {
                   <h3 className="font-semibold text-gray-900">Free</h3>
                 </div>
                 <div className="text-center relative">
+                  <div className="mb-4">
+                    <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-medium">
+                      Most Popular
+                    </span>
+                  </div>
                   <h3 className="font-semibold text-gray-900">Pro</h3>
-                  <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-2 py-1 rounded-full text-xs">
-                    Most Popular
-                  </span>
                 </div>
                 <div className="text-center">
                   <h3 className="font-semibold text-gray-900">Business</h3>
@@ -296,9 +426,9 @@ export default function PricingPage() {
               </div>
 
               {/* Table Rows */}
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {comparisonFeatures.map((row, index) => (
-                  <div key={index} className="grid grid-cols-4 gap-4 items-center py-3 border-b border-gray-100">
+                  <div key={index} className="grid grid-cols-4 gap-6 items-center py-4 border-b border-gray-100 last:border-b-0">
                     <div className="text-left">
                       <span className="text-sm font-medium text-gray-700">{row.feature}</span>
                     </div>
@@ -343,45 +473,73 @@ export default function PricingPage() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="mt-24 text-center"
         >
-          <h2 className="text-headline-1 font-bold text-gray-900 mb-8">
+          <h2 className="text-headline-1 font-bold text-gray-900 mb-12">
             Frequently Asked Questions
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <div className="text-left">
-              <h3 className="font-semibold text-gray-900 mb-2">
-                Can I cancel anytime?
-              </h3>
-              <p className="text-gray-600">
-                Yes, anytime. No long-term contracts.
-              </p>
+            <div className="text-left p-6 rounded-xl hover:bg-gray-50 transition-colors duration-200 group">
+              <div className="flex items-start gap-4">
+                <div className="w-6 h-6 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                  <Calendar className="w-4 h-4 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                    Can I cancel anytime?
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    Yes, anytime. No long-term contracts.
+                  </p>
+                </div>
+              </div>
             </div>
             
-            <div className="text-left">
-              <h3 className="font-semibold text-gray-900 mb-2">
-                What if I'm not satisfied?
-              </h3>
-              <p className="text-gray-600">
-                30-day money-back guarantee on paid plans.
-              </p>
+            <div className="text-left p-6 rounded-xl hover:bg-gray-50 transition-colors duration-200 group">
+              <div className="flex items-start gap-4">
+                <div className="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                  <DollarSign className="w-4 h-4 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-3 group-hover:text-green-600 transition-colors">
+                    What if I'm not satisfied?
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    30-day money-back guarantee on paid plans.
+                  </p>
+                </div>
+              </div>
             </div>
             
-            <div className="text-left">
-              <h3 className="font-semibold text-gray-900 mb-2">
-                Is my data secure?
-              </h3>
-              <p className="text-gray-600">
-                We use enterprise-grade security and never sell your data.
-              </p>
+            <div className="text-left p-6 rounded-xl hover:bg-gray-50 transition-colors duration-200 group">
+              <div className="flex items-start gap-4">
+                <div className="w-6 h-6 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                  <Shield className="w-4 h-4 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-3 group-hover:text-purple-600 transition-colors">
+                    Is my data secure?
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    We use enterprise-grade security and never sell your data.
+                  </p>
+                </div>
+              </div>
             </div>
             
-            <div className="text-left">
-              <h3 className="font-semibold text-gray-900 mb-2">
-                Do you offer team discounts?
-              </h3>
-              <p className="text-gray-600">
-                Yes! Custom pricing for teams of 5+ users.
-              </p>
+            <div className="text-left p-6 rounded-xl hover:bg-gray-50 transition-colors duration-200 group">
+              <div className="flex items-start gap-4">
+                <div className="w-6 h-6 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                  <Users className="w-4 h-4 text-orange-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-3 group-hover:text-orange-600 transition-colors">
+                    Do you offer team discounts?
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    Yes! Custom pricing for teams of 5+ users.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -396,10 +554,105 @@ export default function PricingPage() {
           <p className="text-body-large text-gray-600 mb-6">
             Still have questions? We're here to help.
           </p>
-          <Button variant="secondary" size="lg" asChild>
-            <a href="/contact">Contact Support</a>
+          <Button 
+            variant="secondary" 
+            size="lg" 
+            onClick={() => setIsContactModalOpen(true)}
+          >
+            Contact Support
           </Button>
         </motion.div>
+
+        {/* Contact Support Modal */}
+        {isContactModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div 
+              className="bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900">Request a Callback</h2>
+                  <button
+                    onClick={closeModal}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+
+                {/* Content */}
+                {!submitSuccess ? (
+                  <>
+                    <p className="text-gray-600 mb-6">
+                      Leave your contact details and our team will get in touch with you shortly.
+                    </p>
+
+                    <form onSubmit={handleContactSubmit} className="space-y-4">
+                      <div>
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                          Your Name
+                        </label>
+                        <input
+                          type="text"
+                          id="name"
+                          value={contactForm.name}
+                          onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="Enter your name"
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                          Your Phone Number <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="tel"
+                          id="phone"
+                          required
+                          value={contactForm.phone}
+                          onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="Enter your phone number"
+                        />
+                      </div>
+
+                      <Button
+                        type="submit"
+                        className="w-full h-12 text-lg font-semibold"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? 'Sending...' : 'Send Request'}
+                      </Button>
+                    </form>
+
+                    <p className="text-xs text-gray-500 mt-4 text-center">
+                      By submitting, you agree to the{' '}
+                      <a href="/privacy" className="text-blue-600 hover:text-blue-700 underline">
+                        processing of your personal data
+                      </a>
+                      .
+                    </p>
+                  </>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Check className="w-8 h-8 text-green-600" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      Thank you!
+                    </h3>
+                    <p className="text-gray-600">
+                      We'll contact you shortly.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

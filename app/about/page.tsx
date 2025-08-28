@@ -1,14 +1,15 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
-  Users, 
   Zap, 
   Shield, 
   Heart, 
-  Mail
+  Mail,
+  Check
 } from 'lucide-react';
 
 const highlights = [
@@ -57,9 +58,63 @@ const team = [
 ];
 
 export default function AboutPage() {
+  const [contactForm, setContactForm] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    subject: 'General Inquiry',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: contactForm.firstName,
+          lastName: contactForm.lastName,
+          email: contactForm.email,
+          subject: contactForm.subject,
+          message: contactForm.message,
+        }),
+      });
+
+      if (response.ok) {
+        setSubmitSuccess(true);
+        setContactForm({
+          firstName: '',
+          lastName: '',
+          email: '',
+          subject: 'General Inquiry',
+          message: ''
+        });
+        setTimeout(() => {
+          setSubmitSuccess(false);
+        }, 3000);
+      } else {
+        throw new Error('Failed to submit form');
+      }
+    } catch (error) {
+      console.error('Contact form error:', error);
+      setError('Failed to send message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      <div className="container-apple py-12">
+      <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 py-12">
         {/* Mission Statement */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -157,8 +212,12 @@ export default function AboutPage() {
               >
                 <Card className="text-center">
                   <CardHeader>
-                    <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Users className="w-12 h-12 text-white" />
+                    <div className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-4">
+                      <img
+                        src={member.avatar}
+                        alt={`${member.name} - ${member.role}`}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <CardTitle className="text-headline-3">{member.name}</CardTitle>
                     <CardDescription className="text-body font-medium text-blue-600">
@@ -193,7 +252,7 @@ export default function AboutPage() {
             </CardHeader>
             
             <CardContent>
-              <form className="space-y-6">
+              <form onSubmit={handleContactSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -201,6 +260,8 @@ export default function AboutPage() {
                     </label>
                     <input
                       type="text"
+                      value={contactForm.firstName}
+                      onChange={(e) => setContactForm({ ...contactForm, firstName: e.target.value })}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="John"
                     />
@@ -211,6 +272,8 @@ export default function AboutPage() {
                     </label>
                     <input
                       type="text"
+                      value={contactForm.lastName}
+                      onChange={(e) => setContactForm({ ...contactForm, lastName: e.target.value })}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Doe"
                     />
@@ -223,6 +286,8 @@ export default function AboutPage() {
                   </label>
                   <input
                     type="email"
+                    value={contactForm.email}
+                    onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="john@example.com"
                   />
@@ -232,11 +297,15 @@ export default function AboutPage() {
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
                     Subject
                   </label>
-                  <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option>General Inquiry</option>
-                    <option>Technical Support</option>
-                    <option>Partnership</option>
-                    <option>Feedback</option>
+                  <select 
+                    value={contactForm.subject}
+                    onChange={(e) => setContactForm({ ...contactForm, subject: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="General Inquiry">General Inquiry</option>
+                    <option value="Technical Support">Technical Support</option>
+                    <option value="Partnership">Partnership</option>
+                    <option value="Feedback">Feedback</option>
                   </select>
                 </div>
                 
@@ -246,19 +315,50 @@ export default function AboutPage() {
                   </label>
                   <textarea
                     rows={4}
+                    value={contactForm.message}
+                    onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                     placeholder="Tell us how we can help..."
                   />
                 </div>
                 
-                <Button className="w-full h-14 text-lg" type="submit">
-                  Send Message
+                <Button 
+                  className="w-full h-14 text-lg" 
+                  type="submit"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
                   <Mail className="ml-2 w-5 h-5" />
                 </Button>
+
+                {error && (
+                  <p className="text-red-600 text-sm text-center">
+                    {error}
+                  </p>
+                )}
               </form>
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* Success Modal */}
+        {submitSuccess && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Check className="w-8 h-8 text-green-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  Thank you!
+                </h3>
+                <p className="text-gray-600">
+                  Your message has been sent successfully. We'll get back to you soon.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Stats Section */}
         <motion.div

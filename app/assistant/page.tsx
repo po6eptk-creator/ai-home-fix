@@ -7,9 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { DiagnosisResult } from '@/types/diagnosis';
 import ImageUpload from '@/components/ImageUpload';
 import DiagnosisDisplay from '@/components/DiagnosisDisplay';
-import { Camera, Brain, CheckCircle, AlertCircle, Sun, Crosshair, RotateCw, RefreshCw, Camera as CameraIcon, HelpCircle, Shield, Eye, User } from 'lucide-react';
+import PricingModal from '@/components/PricingModal';
+import { useUserPlan } from '@/app/context/UserPlanContext';
+import { Brain, CheckCircle, AlertCircle, Sun, Crosshair, RotateCw, RefreshCw, Camera as CameraIcon, HelpCircle, Shield, Eye, User, X } from 'lucide-react';
 
 export default function AssistantPage() {
+  const { userPlan, isPro, isBusiness } = useUserPlan();
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [problemDescription, setProblemDescription] = useState('');
@@ -17,9 +20,12 @@ export default function AssistantPage() {
   const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [remainingDiagnoses, setRemainingDiagnoses] = useState(2);
+  const [diagnosisCount, setDiagnosisCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [errorType, setErrorType] = useState<'file-size' | 'format' | 'focus' | null>(null);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [showPricingModal, setShowPricingModal] = useState(false);
+
 
   const categories = [
     'Plumbing',
@@ -32,18 +38,7 @@ export default function AssistantPage() {
     'Landscaping'
   ];
 
-  const loadSampleImage = async () => {
-    try {
-      const response = await fetch('/sample-faucet.jpg');
-      const blob = await response.blob();
-      const file = new File([blob], 'sample-faucet.jpg', { type: 'image/jpeg' });
-      handleImageChange(file);
-      setProblemDescription('Kitchen faucet leaking under the handle. Water drips when turned on.');
-      setSelectedCategory('Plumbing');
-    } catch (error) {
-      console.error('Failed to load sample image:', error);
-    }
-  };
+
 
   const validateImage = (file: File): { isValid: boolean; errorType?: 'file-size' | 'format' } => {
     // Check file size (10MB limit)
@@ -93,10 +88,16 @@ export default function AssistantPage() {
   ];
 
   useEffect(() => {
-    // Load remaining diagnoses from localStorage
-    const saved = localStorage.getItem('remainingDiagnoses');
-    if (saved) {
-      setRemainingDiagnoses(parseInt(saved));
+    // Load remaining diagnoses and diagnosis count from localStorage
+    const savedRemaining = localStorage.getItem('remainingDiagnoses');
+    const savedCount = localStorage.getItem('diagnosisCount');
+    
+    if (savedRemaining) {
+      setRemainingDiagnoses(parseInt(savedRemaining));
+    }
+    
+    if (savedCount) {
+      setDiagnosisCount(parseInt(savedCount));
     }
 
     // Handle URL parameters for pre-filling from blog posts
@@ -113,20 +114,18 @@ export default function AssistantPage() {
     }
     if (image) {
       // Load the image from the blog post
-      loadBlogImage(image);
+      (async () => {
+        try {
+          const response = await fetch(image);
+          const blob = await response.blob();
+          const file = new File([blob], 'blog-image.jpg', { type: 'image/jpeg' });
+          handleImageChange(file);
+        } catch (error) {
+          console.error('Failed to load blog image:', error);
+        }
+      })();
     }
-  }, []);
-
-  const loadBlogImage = async (imagePath: string) => {
-    try {
-      const response = await fetch(imagePath);
-      const blob = await response.blob();
-      const file = new File([blob], 'blog-image.jpg', { type: 'image/jpeg' });
-      handleImageChange(file);
-    } catch (error) {
-      console.error('Failed to load blog image:', error);
-    }
-  };
+  }, [categories]);
 
   const handleImageChange = (file: File | null) => {
     setError(null);
@@ -157,8 +156,14 @@ export default function AssistantPage() {
   };
 
   const handleDiagnose = async () => {
-    if (!image || !problemDescription.trim()) {
-      setError('Add a photo to continue.');
+    if (!problemDescription.trim()) {
+      setError('Please describe the problem to continue.');
+      return;
+    }
+
+    // Check diagnosis limit for free users
+    if (!isPro && !isBusiness && diagnosisCount >= 2) {
+      setShowPricingModal(true);
       return;
     }
 
@@ -171,38 +176,103 @@ export default function AssistantPage() {
     setError(null);
 
     try {
-      const formData = new FormData();
-      formData.append('image', image);
-      formData.append('description', problemDescription);
-      if (selectedCategory) {
-        formData.append('category', selectedCategory);
+      // Convert image to base64 if provided
+      let imageBase64: string | undefined;
+      if (image) {
+        const reader = new FileReader();
+        imageBase64 = await new Promise((resolve, reject) => {
+          reader.onload = () => {
+            const result = reader.result as string;
+            // Remove the data:image/jpeg;base64, prefix
+            const base64String = result.split(',')[1];
+            resolve(base64String);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(image!);
+        });
       }
 
-      const response = await fetch('/api/diagnose', {
+      // Prepare request body
+      const requestBody = {
+        description: problemDescription,
+        ...(imageBase64 && { imageBase64 }),
+        ...(selectedCategory && { category: selectedCategory })
+      };
+
+      // Log the request body to console
+      console.log('Request body for /api/assistant:', requestBody);
+
+      // Make API call to /api/assistant
+      const response = await fetch('/api/assistant', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        
-        // Check for specific error types from API
-        if (errorData.error === 'no_focus' || errorData.error === 'unclear_image') {
-          setErrorType('focus');
-          setError('We couldn\'t detect the problem. Try refocusing.');
-          return;
-        }
-        
-        throw new Error('Failed to diagnose problem');
+        throw new Error('Something went wrong. Please try again.');
       }
 
-      const result = await response.json();
-      setDiagnosis(result);
+      const data = await response.json();
+      
+      // Store the AI response
+      setDiagnosis({
+        problem: {
+          title: problemDescription,
+          confidence: 0.9,
+          altHypotheses: []
+        },
+        diy: {
+          summary: data.overview,
+          steps: data.steps.map((step: string, index: number) => ({
+            title: `Step ${index + 1}`,
+            detail: step
+          })),
+          tools: [
+            {
+              name: 'Basic tools',
+              searchQueries: ['basic home repair tools']
+            }
+          ],
+          parts: [
+            {
+              name: 'Common household items',
+              searchQueries: ['home repair supplies']
+            }
+          ],
+          estimatedCost: {
+            currency: 'USD',
+            min: 20,
+            max: 100
+          }
+        },
+        safety: {
+          globalNotices: data.safetyTips || ['Use protective gloves and proper tools to avoid injury.'],
+          risks: [
+            {
+              title: 'General Safety',
+              description: 'Follow all safety precautions when performing home repairs',
+              severity: 'medium'
+            }
+          ],
+          showHireProCTA: false,
+          category: selectedCategory || 'General'
+        },
+        tipVideoQuery: `${selectedCategory || 'home repair'} ${problemDescription}`
+      });
 
-      // Deduct one diagnosis
+      // Increment diagnosis count and update localStorage
+      const newCount = diagnosisCount + 1;
+      setDiagnosisCount(newCount);
+      localStorage.setItem('diagnosisCount', newCount.toString());
+      
+      // Deduct one diagnosis (for backward compatibility)
       const newRemaining = remainingDiagnoses - 1;
       setRemainingDiagnoses(newRemaining);
       localStorage.setItem('remainingDiagnoses', newRemaining.toString());
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -222,10 +292,12 @@ export default function AssistantPage() {
       } else {
         setError('Failed to initiate checkout');
       }
-    } catch (err) {
+    } catch {
       setError('Failed to initiate checkout');
     }
   };
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
@@ -244,12 +316,21 @@ export default function AssistantPage() {
             Upload a photo → get your fix in 1 minute
           </p>
           
-          {/* Free Tier Counter */}
-          <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-6 py-3 rounded-full text-lg font-medium">
-            <CheckCircle className="w-5 h-5" />
-            <span>{remainingDiagnoses} free diagnoses left</span>
-          </div>
+          {/* Plan Status */}
+          {isPro || isBusiness ? (
+            <div className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-6 py-3 rounded-full text-lg font-medium">
+              <CheckCircle className="w-5 h-5" />
+              <span>{isBusiness ? 'Business Plan' : 'Pro Plan'} - Unlimited Access</span>
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-6 py-3 rounded-full text-lg font-medium">
+              <CheckCircle className="w-5 h-5" />
+              <span>{remainingDiagnoses} free diagnoses left</span>
+            </div>
+          )}
         </motion.div>
+
+
 
         {/* Main Form */}
         {!diagnosis && (
@@ -263,23 +344,17 @@ export default function AssistantPage() {
               <CardHeader className="text-center pb-6">
                 <CardTitle className="text-headline-2">Start Your Diagnosis</CardTitle>
                 <CardDescription className="text-body-large">
-                  Upload a photo and describe the problem to get instant AI-powered solutions
+                  Describe the problem and optionally upload a photo to get instant AI-powered solutions
                 </CardDescription>
               </CardHeader>
               
               <CardContent className="space-y-8">
                 {/* Photo Tips */}
                 <div className="bg-gray-50 rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="mb-3">
                     <h3 className="text-sm font-semibold text-gray-700">Good photo tips</h3>
-                    <button
-                      onClick={loadSampleImage}
-                      className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
-                    >
-                      Try with sample
-                    </button>
                   </div>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-center gap-8">
                     <div className="flex items-center gap-2">
                       <Sun className="w-4 h-4 text-yellow-500" />
                       <span className="text-xs text-gray-600">Good lighting</span>
@@ -376,20 +451,20 @@ export default function AssistantPage() {
 
                 {/* Action Buttons */}
                 <div className="flex gap-4">
-                  {remainingDiagnoses > 0 ? (
+                  {(isPro || isBusiness || remainingDiagnoses > 0) ? (
                     <Button
                       onClick={handleDiagnose}
-                      disabled={isLoading || !image || !problemDescription.trim()}
+                      disabled={isLoading || !problemDescription.trim()}
                       className="flex-1 h-14 text-lg"
                     >
                       {isLoading ? (
                         <>
                           <Brain className="w-5 h-5 mr-2 animate-pulse" />
-                          Analyzing photo… (~10–20 sec)
+                          Analyzing… (~10–20 sec)
                         </>
                       ) : (
                         <>
-                          <Camera className="w-5 h-5 mr-2" />
+                          <Brain className="w-5 h-5 mr-2" />
                           Get Diagnosis
                         </>
                       )}
@@ -534,7 +609,7 @@ export default function AssistantPage() {
             transition={{ duration: 0.8 }}
             className="max-w-4xl mx-auto"
           >
-            <DiagnosisDisplay diagnosis={diagnosis} />
+            <DiagnosisDisplay diagnosis={diagnosis} problemDescription={problemDescription} />
             <div className="text-center mt-8">
               <Button
                 onClick={() => {
@@ -600,6 +675,12 @@ export default function AssistantPage() {
             </motion.div>
           </div>
         )}
+
+        {/* Pricing Modal */}
+        <PricingModal 
+          isOpen={showPricingModal} 
+          onClose={() => setShowPricingModal(false)} 
+        />
       </div>
     </div>
   );
