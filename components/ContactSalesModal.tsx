@@ -10,6 +10,7 @@ import { useUserPlan } from '@/app/context/UserPlanContext';
 interface ContactSalesModalProps {
   isOpen: boolean;
   onClose: () => void;
+  inquiryType?: 'business-plan' | 'b2b' | 'demo' | 'partnership';
 }
 
 interface ContactForm {
@@ -19,7 +20,7 @@ interface ContactForm {
   message: string;
 }
 
-export default function ContactSalesModal({ isOpen, onClose }: ContactSalesModalProps) {
+export default function ContactSalesModal({ isOpen, onClose, inquiryType = 'business-plan' }: ContactSalesModalProps) {
   const { setUserPlan } = useUserPlan();
   const [contactForm, setContactForm] = useState<ContactForm>({
     name: '',
@@ -86,6 +87,28 @@ export default function ContactSalesModal({ isOpen, onClose }: ContactSalesModal
     setError('');
     setIsSubmitting(true);
     
+    // Determine subject and message based on inquiry type
+    let subject = 'Business Plan Inquiry - AI Home Fix';
+    let message = `Company: ${contactForm.company || 'Not provided'}\n\nInquiry: ${contactForm.message || 'Business plan inquiry'}\n\nThis is a business plan inquiry from the AI Home Fix pricing modal.`;
+    
+    switch (inquiryType) {
+      case 'b2b':
+        subject = 'B2B Inquiry - AI Home Fix';
+        message = `Company: ${contactForm.company || 'Not provided'}\n\nInquiry: ${contactForm.message || 'B2B inquiry'}\n\nThis is a B2B inquiry from the AI Home Fix B2B page.`;
+        break;
+      case 'demo':
+        subject = 'Demo Request - AI Home Fix';
+        message = `Company: ${contactForm.company || 'Not provided'}\n\nInquiry: ${contactForm.message || 'Demo request'}\n\nThis is a demo request from the AI Home Fix B2B page.`;
+        break;
+      case 'partnership':
+        subject = 'Partnership Request - AI Home Fix';
+        message = `Company: ${contactForm.company || 'Not provided'}\n\nInquiry: ${contactForm.message || 'Partnership request'}\n\nThis is a partnership request from the AI Home Fix B2B page.`;
+        break;
+      default:
+        // business-plan (default)
+        break;
+    }
+    
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
@@ -95,8 +118,8 @@ export default function ContactSalesModal({ isOpen, onClose }: ContactSalesModal
         body: JSON.stringify({
           firstName: contactForm.name,
           email: contactForm.email,
-          subject: 'Business Plan Inquiry - AI Home Fix',
-          message: `Company: ${contactForm.company || 'Not provided'}\n\nInquiry: ${contactForm.message || 'Business plan inquiry'}\n\nThis is a business plan inquiry from the AI Home Fix pricing modal.`
+          subject,
+          message
         }),
       });
 
@@ -150,7 +173,12 @@ export default function ContactSalesModal({ isOpen, onClose }: ContactSalesModal
             </div>
             <div>
               <h2 className="text-lg font-semibold text-gray-900">Contact Sales</h2>
-              <p className="text-sm text-gray-500">Business Plan Inquiry</p>
+              <p className="text-sm text-gray-500">
+                {inquiryType === 'b2b' && 'B2B Inquiry'}
+                {inquiryType === 'demo' && 'Demo Request'}
+                {inquiryType === 'partnership' && 'Partnership Request'}
+                {inquiryType === 'business-plan' && 'Business Plan Inquiry'}
+              </p>
             </div>
           </div>
           <button
@@ -169,18 +197,23 @@ export default function ContactSalesModal({ isOpen, onClose }: ContactSalesModal
               {/* Description */}
               <div className="mb-4 md:mb-6">
                 <p className="text-gray-600 mb-3 md:mb-4 text-sm md:text-base">
-                  Tell us about your business needs and our sales team will get in touch with you within 24 hours.
+                  {inquiryType === 'demo' && 'Tell us about your demo requirements and our team will schedule a personalized demonstration within 24 hours.'}
+                  {inquiryType === 'partnership' && 'Tell us about your partnership goals and our team will explore collaboration opportunities within 24 hours.'}
+                  {(inquiryType === 'b2b' || inquiryType === 'business-plan') && 'Tell us about your business needs and our sales team will get in touch with you within 24 hours.'}
                 </p>
-                <div className="bg-purple-50 p-3 md:p-4 rounded-xl">
-                  <h4 className="font-semibold text-purple-900 mb-2 text-sm md:text-base">Business Plan - $49/month</h4>
-                  <ul className="text-xs md:text-sm text-purple-800 space-y-0.5 md:space-y-1">
-                    <li>• Everything in Pro</li>
-                    <li>• Team collaboration</li>
-                    <li>• Bulk uploads</li>
-                    <li>• API access</li>
-                    <li>• Custom integrations</li>
-                  </ul>
-                </div>
+                {/* Only show pricing block for business-plan inquiries */}
+                {inquiryType === 'business-plan' && (
+                  <div className="bg-purple-50 p-3 md:p-4 rounded-xl">
+                    <h4 className="font-semibold text-purple-900 mb-2 text-sm md:text-base">Business Plan - $49/month</h4>
+                    <ul className="text-xs md:text-sm text-purple-800 space-y-0.5 md:space-y-1">
+                      <li>• Everything in Pro</li>
+                      <li>• Team collaboration</li>
+                      <li>• Bulk uploads</li>
+                      <li>• API access</li>
+                      <li>• Custom integrations</li>
+                    </ul>
+                  </div>
+                )}
               </div>
 
               {/* Contact Form */}

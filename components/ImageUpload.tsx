@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { Upload, X } from 'lucide-react';
+import { Upload, X, Camera } from 'lucide-react';
 
 interface ImageUploadProps {
   onImageChange: (file: File | null) => void;
@@ -91,10 +91,10 @@ export default function ImageUpload({ onImageChange, imagePreview }: ImageUpload
         <div className="space-y-4">
           {/* Main Drop Zone */}
           <div
-            className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all duration-200 ${
+            className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all duration-200 bg-gray-50 ${
               isDragOver
                 ? 'border-blue-500 bg-blue-50 scale-105'
-                : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+                : 'border-gray-300 hover:border-gray-400 hover:bg-gray-100'
             }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -102,12 +102,12 @@ export default function ImageUpload({ onImageChange, imagePreview }: ImageUpload
             onClick={handleClick}
           >
             <div className="space-y-6">
-              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
-                <Upload className="w-8 h-8 text-blue-600" />
+              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
+                <Camera className="w-10 h-10 text-blue-600" />
               </div>
               <div>
                 <p className="text-xl font-semibold text-gray-700 mb-2">
-                  Drop your photo here, or click to browse
+                  Drag your photo of the issue here or click to upload
                 </p>
                 <p className="text-sm text-gray-500">
                   Supports JPG, PNG, GIF up to 10MB • Good lighting recommended

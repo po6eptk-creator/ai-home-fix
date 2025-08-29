@@ -1,11 +1,25 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Users, Building, TrendingUp, Shield, Zap, ArrowRight } from 'lucide-react';
+import ContactSalesModal from '@/components/ContactSalesModal';
 
 export default function B2BPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<'demo' | 'partnership' | 'b2b'>('b2b');
+
+  const handleOpenModal = (type: 'demo' | 'partnership' | 'b2b') => {
+    setModalType(type);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       
@@ -28,17 +42,13 @@ export default function B2BPage() {
                   Turn every repair request into a precise diagnosis and actionable plan — empower your professionals to deliver faster, safer, and more reliable service.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Button size="lg" className="text-lg px-8 py-3" asChild>
-                    <a href="#contact-demo">
-                      <Building className="w-5 h-5 mr-2" />
-                      Request Demo
-                    </a>
+                  <Button size="lg" className="text-lg px-8 py-3" onClick={() => handleOpenModal('demo')}>
+                    <Building className="w-5 h-5 mr-2" />
+                    Request Demo
                   </Button>
-                  <Button size="lg" variant="outline" className="text-lg px-8 py-3" asChild>
-                    <a href="#contact-partner">
-                      <ArrowRight className="w-5 h-5 mr-2" />
-                      Partner with Us
-                    </a>
+                  <Button size="lg" variant="outline" className="text-lg px-8 py-3" onClick={() => handleOpenModal('partnership')}>
+                    <ArrowRight className="w-5 h-5 mr-2" />
+                    Partner with Us
                   </Button>
                 </div>
               </div>
@@ -46,13 +56,11 @@ export default function B2BPage() {
               {/* Right Column - Image */}
               <div className="flex justify-center lg:justify-end">
                 <div className="relative w-full max-w-md lg:max-w-lg">
-                  <div className="bg-gray-200 rounded-2xl aspect-[4/3] flex items-center justify-center">
-                    <div className="text-center text-gray-500">
-                      <Users className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                      <p className="text-sm">Smiling Repair Professionals</p>
-                      <p className="text-xs">/public/b2b-hero.jpg</p>
-                    </div>
-                  </div>
+                  <img
+                    src="https://163master.ru/uploads/s/u/c/j/ucj14s8ukgz8/img/autocrop/76b7ba3dd498e20b054f4eb6ce72319a.jpg"
+                    alt="Group of smiling repair professionals"
+                    className="rounded-lg shadow-lg object-cover w-[600px] h-[400px] mx-auto"
+                  />
                 </div>
               </div>
             </div>
@@ -153,13 +161,11 @@ export default function B2BPage() {
               {/* Right Column - Image */}
               <div className="flex justify-center lg:justify-end">
                 <div className="relative w-full max-w-md lg:max-w-lg">
-                  <div className="bg-gray-200 rounded-2xl aspect-[4/3] flex items-center justify-center">
-                    <div className="text-center text-gray-500">
-                      <Zap className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                      <p className="text-sm">AI Assistant Helping Repair Worker</p>
-                      <p className="text-xs">/public/b2b-solution.jpg</p>
-                    </div>
-                  </div>
+                  <img
+                    src="https://2655225.fs1.hubspotusercontent-na1.net/hubfs/2655225/2410-Data_AI_Milo_webinar_digital_banner_Hubspot_Website_Media_Format_1000x860_copy.png?width=500&name=2410-Data_AI_Milo_webinar_digital_banner_Hubspot_Website_Media_Format_1000x860_copy.png"
+                    alt="AI Assistant Helping Repair Worker"
+                    className="rounded-lg shadow-lg object-contain w-full max-w-[500px] mx-auto"
+                  />
                 </div>
               </div>
             </div>
@@ -284,13 +290,11 @@ export default function B2BPage() {
               {/* Right Column - Flowchart Image */}
               <div className="flex justify-center lg:justify-end">
                 <div className="relative w-full max-w-md lg:max-w-lg">
-                  <div className="bg-gray-200 rounded-2xl aspect-[4/3] flex items-center justify-center">
-                    <div className="text-center text-gray-500">
-                      <ArrowRight className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                      <p className="text-sm">Simple Flow Illustration</p>
-                      <p className="text-xs">/public/b2b-flow.jpg</p>
-                    </div>
-                  </div>
+                  <img
+                    src="https://img.freepik.com/premium-photo/smiling-carpenter-showing-ok-sign_13339-144887.jpg"
+                    alt="Smiling carpenter showing OK sign"
+                    className="rounded-2xl shadow-lg object-cover w-full h-auto"
+                  />
                 </div>
               </div>
             </div>
@@ -314,7 +318,7 @@ export default function B2BPage() {
               <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
                 Join leading property management companies who are already saving time and money with AI-powered diagnostics.
               </p>
-              <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
+              <Button size="lg" variant="secondary" className="text-lg px-8 py-3" onClick={() => handleOpenModal('demo')}>
                 <Building className="w-5 h-5 mr-2" />
                 Schedule Demo
               </Button>
@@ -323,41 +327,7 @@ export default function B2BPage() {
         </div>
       </section>
 
-      {/* Contact Demo Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            id="contact-demo"
-            className="mb-16"
-          >
-            <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  Request a Demo
-                </h2>
-                <p className="text-gray-600 max-w-2xl mx-auto">
-                  See how AI diagnostics can transform your maintenance operations. Our team will walk you through the platform and answer all your questions.
-                </p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-8 text-center">
-                <Building className="w-16 h-16 text-blue-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Demo Request Form
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  [Demo request form placeholder - Company name, contact info, team size, current challenges]
-                </p>
-                <Button size="lg" className="px-8 py-3">
-                  Schedule Demo Call
-                </Button>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+
 
       {/* Contact Partner Section */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gray-50">
@@ -385,7 +355,7 @@ export default function B2BPage() {
                 <p className="text-gray-600 mb-6">
                   [Partnership form placeholder - Company details, partnership type, integration requirements]
                 </p>
-                <Button size="lg" variant="outline" className="px-8 py-3">
+                <Button size="lg" variant="outline" className="px-8 py-3" onClick={() => handleOpenModal('partnership')}>
                   Submit Partnership Request
                 </Button>
               </div>
@@ -393,6 +363,13 @@ export default function B2BPage() {
           </motion.div>
         </div>
       </section>
+
+      {/* Contact Sales Modal */}
+      <ContactSalesModal 
+        isOpen={isModalOpen} 
+        onClose={handleCloseModal}
+        inquiryType={modalType}
+      />
 
     </div>
   );

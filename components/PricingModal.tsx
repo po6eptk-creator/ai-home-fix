@@ -22,12 +22,12 @@ const plans = [
     description: 'Perfect for trying our AI assistant',
     price: '$0',
     period: 'forever',
-    features: [
-      '2 diagnoses',
-      'Basic step-by-step guide',
-      'Standard processing',
-      'Community support'
-    ],
+          features: [
+        '1 diagnosis',
+        'Basic step-by-step guide',
+        'Standard processing',
+        'Community support'
+      ],
     icon: Star,
     popular: false,
     disabled: true,
@@ -89,7 +89,7 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
       price: '$0',
       period: 'forever',
       features: [
-        '2 diagnoses',
+        '1 diagnosis',
         'Basic step-by-step guide',
         'Standard processing',
         'Community support'

@@ -9,7 +9,7 @@ import ImageUpload from '@/components/ImageUpload';
 import DiagnosisDisplay from '@/components/DiagnosisDisplay';
 import PricingModal from '@/components/PricingModal';
 import { useUserPlan } from '@/app/context/UserPlanContext';
-import { Brain, CheckCircle, AlertCircle, Sun, Crosshair, RotateCw, RefreshCw, Camera as CameraIcon, HelpCircle, Shield, Eye, User, X } from 'lucide-react';
+import { Brain, CheckCircle, AlertCircle, Sun, Crosshair, RotateCw, RefreshCw, Camera as CameraIcon, HelpCircle, Shield, Eye, User, X, Zap, Fan, WashingMachine, Hammer, Square, Home, Leaf } from 'lucide-react';
 
 export default function AssistantPage() {
   const { userPlan, isPro, isBusiness } = useUserPlan();
@@ -19,7 +19,7 @@ export default function AssistantPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [remainingDiagnoses, setRemainingDiagnoses] = useState(2);
+  const [remainingDiagnoses, setRemainingDiagnoses] = useState(1);
   const [diagnosisCount, setDiagnosisCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [errorType, setErrorType] = useState<'file-size' | 'format' | 'focus' | null>(null);
@@ -37,6 +37,17 @@ export default function AssistantPage() {
     'Roofing',
     'Landscaping'
   ];
+
+  const categoryIcons: Record<string, any> = {
+    'Plumbing': WashingMachine, // Using washing machine as faucet alternative
+    'Electrical': Zap,
+    'HVAC': Fan,
+    'Appliances': WashingMachine,
+    'Carpentry': Hammer,
+    'Drywall': Square, // Using square as wall/brick alternative
+    'Roofing': Home,
+    'Landscaping': Leaf
+  };
 
   const amazonCategoryLinks: Record<string, {tools: string; parts: string}> = {
     plumbing: {
@@ -131,12 +142,41 @@ export default function AssistantPage() {
     const savedRemaining = localStorage.getItem('remainingDiagnoses');
     const savedCount = localStorage.getItem('diagnosisCount');
     
-    if (savedRemaining) {
+    // For new users, set to 1 free diagnosis
+    if (savedRemaining === null) {
+      setRemainingDiagnoses(1);
+      localStorage.setItem('remainingDiagnoses', '1');
+    } else {
       setRemainingDiagnoses(parseInt(savedRemaining));
     }
     
     if (savedCount) {
       setDiagnosisCount(parseInt(savedCount));
+    }
+
+    // Check for uploaded image from homepage
+    const homepageImage = sessionStorage.getItem('homepageUploadedImage');
+    if (homepageImage) {
+      console.log('Found homepage image in sessionStorage, loading...');
+      // Convert data URL to File object and load it
+      (async () => {
+        try {
+          const response = await fetch(homepageImage);
+          const blob = await response.blob();
+          const file = new File([blob], 'homepage-upload.jpg', { type: 'image/jpeg' });
+          handleImageChange(file);
+          
+          // Clear the sessionStorage after loading
+          sessionStorage.removeItem('homepageUploadedImage');
+          console.log('Homepage image loaded successfully');
+        } catch (error) {
+          console.error('Failed to load homepage image:', error);
+          sessionStorage.removeItem('homepageUploadedImage');
+        }
+      })();
+    } else {
+      // Clean up any stale sessionStorage entries on page load
+      sessionStorage.removeItem('homepageUploadedImage');
     }
 
     // Handle URL parameters for pre-filling from blog posts
@@ -152,7 +192,7 @@ export default function AssistantPage() {
       setSelectedCategory(category);
     }
     if (image) {
-      // Load the image from the blog post
+      // This is likely a URL from blog posts
       (async () => {
         try {
           const response = await fetch(image);
@@ -201,14 +241,14 @@ export default function AssistantPage() {
     }
 
     // Check diagnosis limit for free users only
-    if (!isPro && !isBusiness && diagnosisCount >= 2) {
+    if (!isPro && !isBusiness && diagnosisCount >= 1) {
       setShowPricingModal(true);
       return;
     }
 
     // Check remaining diagnoses for free users only
     if (!isPro && !isBusiness && remainingDiagnoses <= 0) {
-      setError('No diagnoses remaining. Please purchase more credits.');
+      setShowPricingModal(true);
       return;
     }
 
@@ -355,7 +395,7 @@ export default function AssistantPage() {
             AI Home Repair Assistant
           </h1>
           <p className="text-headline-2 text-gray-600 mb-8">
-            Upload a photo → get your fix in 1 minute
+            Upload a photo of your issue → Get instant AI-powered repair guidance, parts list, and safety tips.
           </p>
           
           {/* Plan Status */}
@@ -367,7 +407,8 @@ export default function AssistantPage() {
           ) : (
             <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-6 py-3 rounded-full text-lg font-medium">
               <CheckCircle className="w-5 h-5" />
-              <span>{remainingDiagnoses} free diagnoses left</span>
+              <span>{remainingDiagnoses} free diagnosis left</span>
+              <span className="text-yellow-500">⚡</span>
             </div>
           )}
         </motion.div>
@@ -382,6 +423,13 @@ export default function AssistantPage() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="max-w-2xl mx-auto"
           >
+            {/* Progress Indicator */}
+            <div className="text-center mb-4">
+              <p className="text-sm text-gray-500 font-medium">
+                Step 1 of 2
+              </p>
+            </div>
+            
             <Card className="p-8">
               <CardHeader className="text-center pb-6">
                 <CardTitle className="text-headline-2">Start Your Diagnosis</CardTitle>
@@ -448,20 +496,24 @@ export default function AssistantPage() {
                     Problem Category (Optional)
                   </label>
                   <div className="flex flex-wrap gap-3">
-                    {categories.map((category) => (
-                      <button
-                        key={category}
-                        type="button"
-                        onClick={() => setSelectedCategory(selectedCategory === category ? '' : category)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                          selectedCategory === category
-                            ? 'bg-blue-600 text-white shadow-md'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        {category}
-                      </button>
-                    ))}
+                    {categories.map((category) => {
+                      const Icon = categoryIcons[category];
+                      return (
+                        <button
+                          key={category}
+                          type="button"
+                          onClick={() => setSelectedCategory(selectedCategory === category ? '' : category)}
+                          className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+                            selectedCategory === category
+                              ? 'bg-blue-600 text-white shadow-md'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          <Icon className="w-4 h-4" />
+                          {category}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -492,37 +544,134 @@ export default function AssistantPage() {
                 )}
 
                 {/* Action Buttons */}
-                <div className="flex gap-4">
-                  {(isPro || isBusiness || remainingDiagnoses > 0) ? (
-                    <Button
-                      onClick={handleDiagnose}
-                      disabled={isLoading || !problemDescription.trim()}
-                      className="flex-1 h-14 text-lg"
-                    >
-                      {isLoading ? (
-                        <>
-                          <Brain className="w-5 h-5 mr-2 animate-pulse" />
-                          Analyzing… (~10–20 sec)
-                        </>
-                      ) : (
-                        <>
-                          <Brain className="w-5 h-5 mr-2" />
-                          Get Diagnosis
-                        </>
-                      )}
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={handleBuyCredits}
-                      variant="gradient"
-                      className="flex-1 h-14 text-lg"
-                    >
-                      Buy 3 Extra Fixes
-                    </Button>
-                  )}
+                <div className="space-y-3">
+                  <div className="flex gap-4">
+                    {(isPro || isBusiness || remainingDiagnoses > 0) ? (
+                      <Button
+                        onClick={handleDiagnose}
+                        disabled={isLoading || !problemDescription.trim()}
+                        className="flex-1 h-14 text-lg bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg"
+                      >
+                        {isLoading ? (
+                          <>
+                            <Brain className="w-5 h-5 mr-2 animate-pulse" />
+                            Analyzing… (~10–20 sec)
+                          </>
+                        ) : (
+                          <>
+                            <Brain className="w-5 h-5 mr-2" />
+                            Get Diagnosis
+                          </>
+                        )}
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => setShowPricingModal(true)}
+                        variant="gradient"
+                        className="flex-1 h-14 text-lg"
+                      >
+                        Upgrade to Pro Plan — Unlimited Access
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {/* Trust Line */}
+                  <div className="text-center">
+                    <p className="text-sm text-gray-600">
+                      ⚡ Instant results • 🔒 Secure & private • ✅ No account required
+                    </p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
+          </motion.div>
+        )}
+
+        {/* What happens next? Section */}
+        {!diagnosis && !isLoading && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="max-w-4xl mx-auto mt-16"
+          >
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                What happens next?
+              </h2>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Get your repair solution in just 3 simple steps
+              </p>
+            </div>
+
+            {/* 3-Step Process */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+                className="text-center"
+              >
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <span className="text-2xl font-bold text-white">1</span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Upload photo</h3>
+                <p className="text-gray-600">Take a clear photo of your repair issue</p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.8 }}
+                className="text-center"
+              >
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <span className="text-2xl font-bold text-white">2</span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">AI analysis</h3>
+                <p className="text-gray-600">Our AI identifies the problem and safety concerns</p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 1.0 }}
+                className="text-center"
+              >
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <span className="text-2xl font-bold text-white">3</span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Get fix plan</h3>
+                <p className="text-gray-600">Receive step-by-step instructions and parts list</p>
+              </motion.div>
+            </div>
+
+            {/* Testimonial Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 1.2 }}
+              className="max-w-md mx-auto"
+            >
+              <Card className="bg-white rounded-2xl shadow-lg border-0 p-6">
+                <div className="text-center">
+                  <div className="flex justify-center mb-4">
+                    <img 
+                      src="/avatars/sarah.jpg" 
+                      alt="Sarah J." 
+                      className="w-16 h-16 rounded-full object-cover shadow-lg" 
+                    />
+                  </div>
+                  <blockquote className="text-lg text-gray-700 mb-4 italic">
+                    "Fixed my faucet in 10 minutes with AI Home Fix!"
+                  </blockquote>
+                  <div>
+                    <p className="font-bold text-gray-900">Sarah J.</p>
+                    <p className="text-sm text-gray-600">Homeowner</p>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
           </motion.div>
         )}
 
@@ -655,6 +804,8 @@ export default function AssistantPage() {
               diagnosis={diagnosis} 
               problemDescription={problemDescription} 
               amazonCategoryLinks={amazonCategoryLinks}
+              showUpgradeBanner={!isPro && !isBusiness && diagnosisCount >= 1}
+              onUpgradeClick={() => setShowPricingModal(true)}
             />
             <div className="text-center mt-8">
               <Button
