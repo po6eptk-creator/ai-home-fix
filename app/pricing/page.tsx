@@ -15,7 +15,7 @@ const plans = [
     price: { monthly: '$0', annual: '$0' },
     period: 'forever',
     features: [
-      '2 diagnoses',
+      '1 diagnosis',
       'Basic step-by-step guide',
       'Standard processing',
       'Community support'
@@ -67,7 +67,7 @@ const plans = [
 const comparisonFeatures = [
   {
     feature: 'Diagnoses per month',
-    free: '2',
+    free: '1',
     pro: 'Unlimited',
     business: 'Unlimited'
   },
@@ -135,6 +135,7 @@ export default function PricingPage() {
   const [contactForm, setContactForm] = useState({ name: '', phone: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Dynamic plans based on user's current plan
   const getPlans = () => {
@@ -155,7 +156,7 @@ export default function PricingPage() {
         price: { monthly: '$0', annual: '$0' },
         period: 'forever',
         features: [
-          '2 diagnoses',
+          '1 diagnosis',
           'Basic step-by-step guide',
           'Standard processing',
           'Community support'
@@ -227,32 +228,40 @@ export default function PricingPage() {
     }
 
     setIsSubmitting(true);
+    setSubmitError(null); // Clear any previous errors
     
     try {
+      // Use the same API payload structure as ContactSalesModal
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: contactForm.name,
-          phone: contactForm.phone,
+          firstName: contactForm.name,
+          email: 'contact@ai-home-fix.com', // Use a default email since form doesn't collect email
+          subject: 'Contact Support - AI Home Fix',
+          message: `Phone: ${contactForm.phone}\n\nThis is a contact support request from the AI Home Fix pricing page.`
         }),
       });
 
       if (response.ok) {
+        // Success case - 2xx response
         setSubmitSuccess(true);
         setContactForm({ name: '', phone: '' });
         setTimeout(() => {
           setIsContactModalOpen(false);
           setSubmitSuccess(false);
-        }, 2000);
+        }, 3000);
       } else {
-        throw new Error('Failed to submit');
+        // Non-2xx response (400, 500, etc.)
+        console.error('Contact form submission failed', response.status, response.statusText);
+        setSubmitError('Something went wrong. Please try again later.');
       }
     } catch (error) {
+      // Network error, timeout, or other issues
       console.error('Contact form error:', error);
-      alert('Failed to submit request. Please try again.');
+      setSubmitError('Something went wrong. Please try again later.');
     } finally {
       setIsSubmitting(false);
     }
@@ -261,6 +270,7 @@ export default function PricingPage() {
   const closeModal = () => {
     setIsContactModalOpen(false);
     setSubmitSuccess(false);
+    setSubmitError(null);
     setContactForm({ name: '', phone: '' });
   };
 
@@ -630,6 +640,13 @@ export default function PricingPage() {
                       Leave your contact details and our team will get in touch with you shortly.
                     </p>
 
+                    {/* Error Message */}
+                    {submitError && (
+                      <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-red-700 text-sm">{submitError}</p>
+                      </div>
+                    )}
+
                     <form onSubmit={handleContactSubmit} className="space-y-4">
                       <div>
                         <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
@@ -686,7 +703,7 @@ export default function PricingPage() {
                       Thank you!
                     </h3>
                     <p className="text-gray-600">
-                      We'll contact you shortly.
+                      We'll contact you within 24 hours.
                     </p>
                   </div>
                 )}

@@ -179,31 +179,7 @@ export default function AssistantPage() {
       sessionStorage.removeItem('homepageUploadedImage');
     }
 
-    // Handle URL parameters for pre-filling from blog posts
-    const urlParams = new URLSearchParams(window.location.search);
-    const title = urlParams.get('title');
-    const category = urlParams.get('category');
-    const image = urlParams.get('image');
 
-    if (title) {
-      setProblemDescription(title);
-    }
-    if (category && categories.includes(category)) {
-      setSelectedCategory(category);
-    }
-    if (image) {
-      // This is likely a URL from blog posts
-      (async () => {
-        try {
-          const response = await fetch(image);
-          const blob = await response.blob();
-          const file = new File([blob], 'blog-image.jpg', { type: 'image/jpeg' });
-          handleImageChange(file);
-        } catch (error) {
-          console.error('Failed to load blog image:', error);
-        }
-      })();
-    }
   }, [categories]);
 
   const handleImageChange = (file: File | null) => {

@@ -127,9 +127,6 @@ export default function ContactSalesModal({ isOpen, onClose, inquiryType = 'busi
         setSubmitSuccess(true);
         setContactForm({ name: '', email: '', company: '', message: '' });
         
-        // Update global user plan state
-        setUserPlan('business');
-        
         // Close modal after showing success message
         setTimeout(() => {
           onClose();

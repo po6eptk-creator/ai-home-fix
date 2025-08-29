@@ -1,9 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check, Shield, Zap, ArrowRight } from 'lucide-react';
+import FakeStripeModal from '@/components/FakeStripeModal';
+import { useUserPlan } from '@/app/context/UserPlanContext';
+import { useRouter } from 'next/navigation';
 
 const features = [
   {
@@ -24,6 +28,20 @@ const features = [
 ];
 
 export default function CheckoutPage() {
+  const { setUserPlan } = useUserPlan();
+  const router = useRouter();
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+
+  const handlePaymentSuccess = () => {
+    // User is already set to 'pro' by FakeStripeModal
+    // Redirect to assistant with unlimited access
+    router.push('/assistant');
+  };
+
+  const handleStartTrial = () => {
+    setIsPaymentModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       <div className="container-apple py-12">
@@ -92,7 +110,11 @@ export default function CheckoutPage() {
                   </div>
 
                   {/* CTA Button */}
-                  <Button className="w-full h-14 text-lg" size="lg">
+                  <Button 
+                    className="w-full h-14 text-lg" 
+                    size="lg"
+                    onClick={handleStartTrial}
+                  >
                     Start Pro Trial
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
@@ -200,6 +222,13 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+
+      {/* Payment Modal */}
+      <FakeStripeModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        onSuccess={handlePaymentSuccess}
+      />
     </div>
   );
 }

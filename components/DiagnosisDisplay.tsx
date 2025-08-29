@@ -128,12 +128,38 @@ export default function DiagnosisDisplay({ diagnosis, problemDescription, amazon
   };
 
   const createDynamicAmazonLink = (itemName: string) => {
-    // Get the diagnosis category (lowercase for matching)
-    const diagnosisCategory = diagnosis.safety.category?.toLowerCase() || 'default';
+    // Get the diagnosis category (capitalized for matching)
+    const diagnosisCategory = diagnosis.safety.category || 'Default';
     
-    // Use category-based Amazon links if available
-    if (amazonCategoryLinks && amazonCategoryLinks[diagnosisCategory]) {
-      const categoryLinks = amazonCategoryLinks[diagnosisCategory];
+    // Category-specific Amazon links for Common household items
+    const categoryLinks: { [key: string]: string } = {
+      'Plumbing': 'https://www.amazon.com/s?k=plumbing+repair+kit',
+      'Electrical': 'https://www.amazon.com/s?k=electrical+repair+tools',
+      'Drywall': 'https://www.amazon.com/s?k=drywall+patch+kit',
+      'Furniture': 'https://www.amazon.com/s?k=furniture+repair+kit',
+      'Garage': 'https://www.amazon.com/s?k=garage+door+repair+kit',
+      'Appliances': 'https://www.amazon.com/s?k=appliance+repair+kit',
+      'Roofing': 'https://www.amazon.com/s?k=roof+repair+kit',
+      'HVAC': 'https://www.amazon.com/s?k=hvac+repair+kit',
+      'Carpentry': 'https://www.amazon.com/s?k=carpentry+repair+tools',
+      'Bathroom': 'https://www.amazon.com/s?k=bathroom+repair+kit',
+      'Kitchen': 'https://www.amazon.com/s?k=kitchen+repair+kit',
+      'Default': 'https://www.amazon.com/s?k=home+repair+kit'
+    };
+    
+    // Handle Common household items with category-specific links
+    if (itemName === 'Common household items') {
+      return categoryLinks[diagnosisCategory] || categoryLinks['Default'];
+    }
+    
+    // Handle Basic tools (static link as previously implemented)
+    if (itemName === 'Basic tools') {
+      return 'https://www.amazon.com/s?k=basic+home+tools';
+    }
+    
+    // Use category-based Amazon links if available for other items
+    if (amazonCategoryLinks && amazonCategoryLinks[diagnosisCategory.toLowerCase()]) {
+      const categoryLinks = amazonCategoryLinks[diagnosisCategory.toLowerCase()];
       
       // Map item names to category-specific links
       if (itemName === 'Basic tools') {
@@ -275,7 +301,7 @@ export default function DiagnosisDisplay({ diagnosis, problemDescription, amazon
                     <span className="font-medium text-gray-900">{tool.name}</span>
                   </div>
                   <a
-                    href={createDynamicAmazonLink(tool.name)}
+                    href={tool.name === 'Basic tools' ? 'https://www.amazon.com/s?k=basic+home+tools' : createDynamicAmazonLink(tool.name)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm"

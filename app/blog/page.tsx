@@ -18,160 +18,93 @@ const formatDate = (dateString: string) => {
   return date.toLocaleDateString('en-US', options);
 };
 
+// Helper function to get category icon
+const getCategoryIcon = (category: string) => {
+  switch (category) {
+    case 'Plumbing':
+      return '🚰';
+    case 'Electrical':
+      return '💡';
+    case 'Drywall':
+      return '🧱';
+    case 'Garage':
+      return '🚗';
+    case 'Kitchen':
+      return '🍳';
+    case 'Bathroom':
+      return '🚿';
+    default:
+      return '📄';
+  }
+};
+
 const blogPosts = [
   {
-    slug: 'how-to-fix-leaking-faucet',
-    title: 'How to Fix a Leaking Faucet in 10 Minutes',
-    excerpt: 'Step-by-step guide to stop common faucet leaks without calling a plumber. Learn causes, tools needed, and quick fix instructions.',
+    slug: 'how-to-fix-leaking-faucet-5-easy-steps',
+    title: 'How to Fix a Leaking Faucet in 5 Easy Steps',
+    excerpt: 'Stop wasting water and money! Learn to fix common faucet leaks with our step-by-step guide. No plumber needed for most repairs.',
     image: '/blog-images/faucet-leak.jpg',
     category: 'Plumbing',
-    readTime: '10 min read',
-    date: '2024-01-15',
-    featured: true
-  },
-  {
-    slug: 'organize-garage-tools',
-    title: 'How to Organize Your Garage Tools',
-    excerpt: 'Simple system to keep tools tidy and easy to access. Learn pegboards, shelving units, labeling, and space-saving ideas.',
-    image: '/blog-images/garage-tools.jpg',
-    category: 'Garage',
     readTime: '8 min read',
-    date: '2024-01-14'
+    date: '2025-01-15',
+    featured: true,
+    keywords: 'leaking faucet, faucet repair, plumbing DIY, water leak, faucet fix, home repair',
+    description: 'Learn how to fix a leaking faucet in 5 easy steps. Save money on plumbing costs with our comprehensive DIY guide.'
   },
   {
-    slug: 'fixing-noisy-garage-door',
-    title: 'Fixing a Noisy Garage Door',
-    excerpt: 'Quiet down your garage door with basic maintenance. Learn lubrication tips, tightening bolts, and replacing worn rollers.',
+    slug: 'reset-tripped-circuit-breaker-safely',
+    title: 'Resetting a Tripped Circuit Breaker Safely',
+    excerpt: 'Don\'t panic when your power goes out! Learn to safely reset a tripped circuit breaker and prevent future electrical issues.',
+    image: '/blog-images/circuit-breaker.jpg',
+    category: 'Electrical',
+    readTime: '6 min read',
+    date: '2025-01-14',
+    keywords: 'circuit breaker, electrical safety, power outage, breaker reset, electrical repair, home electrical',
+    description: 'Learn how to safely reset a tripped circuit breaker. Essential electrical safety guide for homeowners.'
+  },
+  {
+    slug: 'patch-small-hole-drywall-like-pro',
+    title: 'How to Patch a Small Hole in Drywall Like a Pro',
+    excerpt: 'Transform your walls from damaged to perfect with our professional drywall patching techniques. Easy DIY guide.',
+    image: '/blog-images/small-holes.jpg',
+    category: 'Drywall',
+    readTime: '10 min read',
+    date: '2025-01-13',
+    keywords: 'drywall repair, wall patch, hole repair, drywall patch, home improvement, wall repair',
+    description: 'Learn professional techniques to patch small holes in drywall. Complete DIY guide with step-by-step instructions.'
+  },
+  {
+    slug: 'fix-noisy-garage-door-minutes',
+    title: 'Fixing a Noisy Garage Door in Minutes',
+    excerpt: 'Silence that annoying garage door! Quick fixes for squeaks, rattles, and grinding noises that drive you crazy.',
     image: '/blog-images/noisy-garage.jpg',
     category: 'Garage',
-    readTime: '6 min read',
-    date: '2024-01-13'
-  },
-  {
-    slug: 'repairing-leaking-kitchen-sink-pipe',
-    title: 'Repairing a Leaking Kitchen Sink Pipe',
-    excerpt: 'Stop leaks under the sink with quick fixes. Learn identifying leak points, tightening connections, and replacing washers.',
-    image: '/blog-images/kitchen-pipe.jpg',
-    category: 'Kitchen',
-    readTime: '9 min read',
-    date: '2024-01-12'
-  },
-  {
-    slug: 'unclogging-dishwasher-drain',
-    title: 'Unclogging a Dishwasher Drain',
-    excerpt: 'Solve water drainage problems in your dishwasher. Learn checking filters, cleaning drain hose, and when to call a pro.',
-    image: '/blog-images/dishwasher-drain.jpg',
-    category: 'Kitchen',
     readTime: '7 min read',
-    date: '2024-01-11'
+    date: '2025-01-12',
+    keywords: 'garage door repair, noisy garage door, garage door maintenance, door lubrication, garage repair',
+    description: 'Fix a noisy garage door quickly with our step-by-step guide. Simple maintenance tips to silence squeaks and rattles.'
   },
   {
-    slug: 'replace-showerhead',
-    title: 'How to Replace a Showerhead',
-    excerpt: 'Upgrade or fix your shower in minutes. Learn removing old showerhead, installing new one, and sealing properly.',
+    slug: 'unclog-kitchen-sink-without-chemicals',
+    title: 'Unclogging a Kitchen Sink Without Chemicals',
+    excerpt: 'Clear stubborn clogs naturally! Safe, effective methods to unclog your kitchen sink without harsh chemicals.',
+    image: '/blog-images/kitchen-sink.jpg',
+    category: 'Kitchen',
+    readTime: '8 min read',
+    date: '2025-01-11',
+    keywords: 'kitchen sink clog, drain unclog, natural cleaning, sink repair, plumbing DIY, clog removal',
+    description: 'Learn how to unclog a kitchen sink without chemicals. Safe, natural methods for clearing stubborn drain clogs.'
+  },
+  {
+    slug: 'replace-showerhead-10-minutes',
+    title: 'How to Replace a Showerhead in 10 Minutes',
+    excerpt: 'Upgrade your shower experience in minutes! Simple guide to remove old showerhead and install a new one properly.',
     image: '/blog-images/showerhead.jpg',
     category: 'Bathroom',
     readTime: '5 min read',
-    date: '2024-01-10'
-  },
-  {
-    slug: 'fixing-running-toilet',
-    title: 'Fixing a Running Toilet',
-    excerpt: 'Save water and money by repairing a constantly running toilet. Learn adjusting flapper, fixing fill valve, and troubleshooting.',
-    image: '/blog-images/running-toilet.jpg',
-    category: 'Bathroom',
-    readTime: '8 min read',
-    date: '2024-01-09'
-  },
-  {
-    slug: 'unclogging-slow-drain-safely',
-    title: 'Unclogging a Slow Drain Safely',
-    excerpt: 'Easy methods to clear clogged sinks using household tools. Avoid harsh chemicals and learn preventive tips.',
-    image: '/blog-images/slow-drain.jpg',
-    category: 'Plumbing',
-    readTime: '8 min read',
-    date: '2024-01-08'
-  },
-  {
-    slug: 'reset-tripped-circuit-breaker',
-    title: 'How to Reset a Tripped Circuit Breaker',
-    excerpt: 'Understand why breakers trip and how to safely reset them. Learn safety warnings and when to call an electrician.',
-    image: '/blog-images/circuit-breaker.jpg',
-    category: 'Electrical',
-    readTime: '7 min read',
-    date: '2024-01-07'
-  },
-  {
-    slug: 'replacing-light-switch',
-    title: 'Replacing a Light Switch',
-    excerpt: 'Beginner-friendly guide to swap out a faulty switch. Learn tools needed, shutting off power, and wiring basics.',
-    image: '/blog-images/light-switch.jpg',
-    category: 'Electrical',
-    readTime: '12 min read',
-    date: '2024-01-06'
-  },
-  {
-    slug: 'fixing-small-holes-drywall',
-    title: 'Fixing Small Holes in Drywall',
-    excerpt: 'How to repair nail holes and dents with minimal tools. Complete guide to filling, sanding, priming, and painting.',
-    image: '/blog-images/small-holes.jpg',
-    category: 'Drywall',
-    readTime: '6 min read',
-    date: '2024-01-05'
-  },
-  {
-    slug: 'patching-medium-drywall-hole',
-    title: 'Patching a Medium-Sized Drywall Hole',
-    excerpt: 'Repair a larger hole using patch kits or scrap drywall. Step-by-step cutting, patching, taping, and finishing.',
-    image: '/blog-images/medium-hole.jpg',
-    category: 'Drywall',
-    readTime: '15 min read',
-    date: '2024-01-04'
-  },
-  {
-    slug: 'electrical-outlet-repair',
-    title: 'Electrical Outlet Not Working? Here\'s What to Check',
-    excerpt: 'Save money: Don\'t call an electrician yet! Most outlet problems can be fixed with basic troubleshooting.',
-    image: '/blog-images/electrical-outlet.jpg',
-    category: 'Electrical',
-    readTime: '7 min read',
-    date: '2024-01-03'
-  },
-  {
-    slug: 'drywall-repair-guide',
-    title: 'Complete Guide to Drywall Repair: From Small Holes to Large Damage',
-    excerpt: 'Save money: Master the art of drywall repair with our comprehensive guide covering everything from nail holes to large patches.',
-    image: '/blog-images/drywall-repair.jpg',
-    category: 'Drywall',
-    readTime: '12 min read',
-    date: '2024-01-02'
-  },
-  {
-    slug: 'kitchen-sink-clogged',
-    title: 'Kitchen Sink Clogged? Try These 6 Solutions First',
-    excerpt: 'Save money: Before calling a plumber, try these DIY solutions to unclog your kitchen sink.',
-    image: '/blog-images/kitchen-sink.jpg',
-    category: 'Kitchen',
-    readTime: '6 min read',
-    date: '2024-01-01'
-  },
-  {
-    slug: 'garage-door-repair',
-    title: 'Garage Door Won\'t Open? Common Problems and Solutions',
-    excerpt: 'Save money: Diagnose and fix common garage door issues with our troubleshooting guide.',
-    image: '/blog-images/garage-door.jpg',
-    category: 'Garage',
-    readTime: '8 min read',
-    date: '2023-12-31'
-  },
-  {
-    slug: 'water-heater-troubleshooting',
-    title: 'Water Heater Troubleshooting: No Hot Water?',
-    excerpt: 'Save money: Don\'t take a cold shower! Learn how to diagnose and fix water heater problems.',
-    image: '/blog-images/water-heater.jpg',
-    category: 'Plumbing',
-    readTime: '10 min read',
-    date: '2023-12-30'
+    date: '2025-01-10',
+    keywords: 'showerhead replacement, bathroom repair, shower installation, plumbing DIY, shower upgrade',
+    description: 'Replace a showerhead in 10 minutes with our easy step-by-step guide. Upgrade your shower without hiring a plumber.'
   }
 ];
 
@@ -197,13 +130,8 @@ export default function BlogPage() {
     : blogPosts.filter(post => post.category === selectedCategory);
 
   const handleOpenInAssistant = (post: typeof blogPosts[0]) => {
-    // Create URL with pre-filled data for Assistant
-    const params = new URLSearchParams({
-      title: post.title,
-      category: post.category,
-      image: post.image
-    });
-    window.location.href = `/assistant?${params.toString()}`;
+    // Redirect to Assistant without pre-filled data
+    window.location.href = '/assistant';
   };
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
@@ -294,13 +222,10 @@ export default function BlogPage() {
           {filteredPosts.filter(post => post.featured).map((post) => (
             <Card key={post.slug} className="overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="relative h-64 lg:h-full overflow-hidden">
-                  <img
-                    src={post.image}
-                    alt={post.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                <div className="relative h-64 lg:h-full bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
+                  <div className="text-8xl lg:text-9xl">
+                    {getCategoryIcon(post.category)}
+                  </div>
                 </div>
                 <div className="p-8 flex flex-col justify-center">
                   <CardTitle className="text-headline-2 mb-4">
@@ -351,13 +276,10 @@ export default function BlogPage() {
               transition={{ duration: 0.6, delay: 0.3 + index * 0.1 }}
             >
               <Card className="h-full overflow-hidden flex flex-col">
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={post.image}
-                    alt={post.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
+                <div className="relative h-48 bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
+                  <div className="text-6xl">
+                    {getCategoryIcon(post.category)}
+                  </div>
                 </div>
                 <div className="flex flex-col flex-1">
                   <CardHeader className="pt-6">
