@@ -199,7 +199,7 @@ export async function POST(request: NextRequest) {
     if (!apiKey) {
       console.error("Missing API key: OPENAI_API_KEY environment variable is not set");
       return NextResponse.json(
-        { error: 'OpenAI API key is not configured' },
+        { error: 'OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable.' },
         { status: 500 }
       );
     }
@@ -288,8 +288,29 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error("Assistant API error:", error);
+    
+    // Provide more specific error messages based on the error type
+    if (error instanceof Error) {
+      if (error.message.includes('API key')) {
+        return NextResponse.json(
+          { error: 'OpenAI API key is invalid or missing' },
+          { status: 500 }
+        );
+      } else if (error.message.includes('rate limit')) {
+        return NextResponse.json(
+          { error: 'Rate limit exceeded. Please try again later.' },
+          { status: 429 }
+        );
+      } else if (error.message.includes('quota')) {
+        return NextResponse.json(
+          { error: 'OpenAI quota exceeded. Please try again later.' },
+          { status: 429 }
+        );
+      }
+    }
+    
     return NextResponse.json(
-      { error: 'Something went wrong' },
+      { error: 'Something went wrong. Please try again.' },
       { status: 500 }
     );
   }

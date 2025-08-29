@@ -268,7 +268,9 @@ export default function AssistantPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Something went wrong. Please try again.');
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error || `HTTP ${response.status}: ${response.statusText}`;
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
